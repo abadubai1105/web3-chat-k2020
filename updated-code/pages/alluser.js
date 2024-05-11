@@ -6,6 +6,13 @@ import { ChatAppContect } from "../Context/ChatAppContext";
 
 const alluser = () => {
   const { userLists, addFriends } = useContext(ChatAppContect);
+  if(!userLists || userLists.length === 0){
+    return <div>
+    <div className={Style.alluser_info}>
+      <h1>No User Yet </h1>
+    </div>
+  </div>
+    }
   return (
     <div>
       <div className={Style.alluser_info}>

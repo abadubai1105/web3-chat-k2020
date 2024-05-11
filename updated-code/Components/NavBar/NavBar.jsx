@@ -26,6 +26,10 @@ const NavBar = () => {
       menu: "SETTING",
       link: "/",
     },
+    {
+      menu: "FRIEND REQUEST",
+      link: "friendrequest"
+    },
   ];
 
   //USESTATE
