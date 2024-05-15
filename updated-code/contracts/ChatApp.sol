@@ -5,12 +5,17 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract ChatApp{
 
+    event LoginUser(bool isUserLoggedIn);
+    event CreateAccount(address addr, string name,bool isUserLoggedIn);
+    event LogoutUser(bool isUserLoggedIn);
     //USER STRUCT
     struct user{
+        address addr;
         string name;
         friend[] friendList;
         friend[] addFriendlist;
         friend[] waitFriendlist;
+        bool isUserLoggedIn;
     }
 
     struct friend{
@@ -39,14 +44,39 @@ contract ChatApp{
         return bytes(userList[pubkey].name).length > 0;
     }
 
+    function loginUser(address _address, string memory _name) public returns(bool){
+        require(checkUserExists(msg.sender), "User is not registered");
+        if(keccak256(abi.encodePacked(userList[_address].name)) ==
+            keccak256(abi.encodePacked(_name)) && userList[_address].addr == _address){
+            userList[msg.sender].isUserLoggedIn = true;
+            emit LoginUser(true);
+            return userList[msg.sender].isUserLoggedIn;
+        } else {
+            emit LoginUser(false);
+            return false;
+        }
+    }
+
+    function checkIsUserLogged(address _address) public view returns (bool){
+        return (userList[_address].isUserLoggedIn);
+    }
+    function logoutUser(address _address) public{
+        require(checkIsUserLogged(_address), "User is not registered");
+        userList[_address].isUserLoggedIn = false;
+        emit LoginUser(false);
+        
+    }
     //CREATE ACCOUNT
-    function createAccount(string calldata name) external {
-        require(checkUserExists(msg.sender) == false, "User already exists");
-        require(bytes(name).length>0, "Username cannot be empty");
+    function createAccount(address _address, string memory _name) public returns(bool){
+        require(userList[_address].addr != msg.sender,  "User already exists!"); 
+        require(bytes(_name).length>0, "Username cannot be empty");
 
-        userList[msg.sender].name = name;
-
-        getAllUsers.push(AllUserStruck(name, msg.sender));
+        userList[_address].name = _name;
+        userList[_address].addr = _address;
+        userList[_address].isUserLoggedIn = false;
+        emit CreateAccount(_address, _name, false);
+        return true;
+        //getAllUsers.push(AllUserStruck(name, msg.sender));
     }
 
     //GET USERNAME
