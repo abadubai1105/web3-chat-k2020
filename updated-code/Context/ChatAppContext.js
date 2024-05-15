@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-
+import {ethers }  from "ethers";
 //INTERNAL IMPORT
 import {
-  ChechIfWalletConnected,
+  CheckIfWalletConnected,
   connectWallet,
   connectingWithContract,
 } from "../Utils/apiFeature";
@@ -21,6 +21,7 @@ export const ChatAppProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [userLists, setUserLists] = useState([]);
   const [error, setError] = useState("");
+  const [isUserLoggedIn,setIsUserLoggedIn] = useState("");
 
   //CHAT USER DATA
   const [currentUserName, setCurrentUserName] = useState("");
@@ -34,7 +35,7 @@ export const ChatAppProvider = ({ children }) => {
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
-      const connectAccount = await connectWallet();
+      var connectAccount= await connectWallet();
       setAccount(connectAccount);
       //GET USER NAME
       const userName = await contract.getUsername(connectAccount);
@@ -52,6 +53,8 @@ export const ChatAppProvider = ({ children }) => {
       //GET ALL APP USER LIST
       const userList = await contract.getAllAppUser();
       setUserLists(userList);
+      // IS SET USER LOGGED IN
+      const isUserLoggedIn = await contract.checkIsUserLogged();
     } catch (error) {
       // setError("Please Install And Connect Your Wallet");
       console.log(error);
@@ -61,22 +64,14 @@ export const ChatAppProvider = ({ children }) => {
     fetchData();
   }, []);
 
-  //READ MESSAGE
-  const readMessage = async (friendAddress) => {
-    try {
-      const contract = await connectingWithContract();
-      const read = await contract.readMessage(friendAddress);
-      setFriendMsg(read);
-    } catch (error) {
-      console.log("Currently You Have no Message");
-    }
-  };
 
-  //CREATE ACCOUNT
-  const createAccount = async ({ name }) => {
+
+  //REGISTER USER
+  const createAccount = async ({name}) => {
+    //event.preventDefault();
     console.log(name, account);
     try {
-      if (!name || !account)
+      if (!name)
         return setError("Name And Account Address, cannot be empty");
 
       const contract = await connectingWithContract();
@@ -90,7 +85,63 @@ export const ChatAppProvider = ({ children }) => {
     } catch (error) {
       setError("Error while creating your account Pleas reload browser");
     }
+  }
+
+
+  const loginUser = async (event) => {
+    try{
+      console.log("Logging In User");
+      const {ethereum} = window;
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const chatContract = new ethers.Contract(ChatAppAddress, ChatAppABI, signer);
+        const tx = await chatContract.loginUser(currentAccount,address,name);
+        setLoading(true);
+        await tx.wait();
+        setLoading(false);
+        ưindow.location.reload();
+      } else {
+        setError("Please connect to MetaMask");
+      }
+    
+    }
+    catch (error) {
+      console.log("Currently You Have no Message");
+    }
   };
+
+  //READ MESSAGE
+  const readMessage = async (friendAddress) => {
+    try {
+      const contract = await connectingWithContract();
+      const read = await contract.readMessage(friendAddress);
+      setFriendMsg(read);
+    } catch (error) {
+      console.log("Currently You Have no Message");
+    }
+  };
+
+  //CREATE ACCOUNT
+  // const createAccount = async (event) => {
+  //   event.preventDefault();
+  //   console.log(name, account);
+  //   try {
+  //     if (!name || !account)
+  //       return setError("Name And Account Address, cannot be empty");
+
+  //     const contract = await connectingWithContract();
+  //     console.log(contract);
+  //     const getCreatedUser = await contract.createAccount(name);
+
+  //     setLoading(true);
+  //     await getCreatedUser.wait();
+  //     setLoading(false);
+  //     window.location.reload();
+  //   } catch (error) {
+  //     setError("Error while creating your account Pleas reload browser");
+  //   }
+  // };
 
   //ADD YOUR FRIENDS
   const addFriends = async ({ name, userAddress }) => {
@@ -147,6 +198,8 @@ export const ChatAppProvider = ({ children }) => {
     setCurrentUserName(userName);
     setCurrentUserAddress(userAddress);
   };
+
+  
   return (
     <ChatAppContect.Provider
       value={{
@@ -157,8 +210,11 @@ export const ChatAppProvider = ({ children }) => {
         sendMessage,
         readUser,
         connectWallet,
-        ChechIfWalletConnected,
+        CheckIfWalletConnected,
         connectingWithContract,
+        setIsUserLoggedIn,
+        loginUser,
+        isUserLoggedIn,
         account,
         userName,
         friendLists,
