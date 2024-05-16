@@ -36,8 +36,10 @@ contract ChatApp{
 
     AllUserStruck[] getAllUsers;
 
-    mapping(address => user) userList;
+    mapping(address => user) public userList;
     mapping(bytes32 => message[]) allMessages;
+
+    address [] public addresses;
 
     //CHECK USER EXIST
     function checkUserExists(address pubkey) public view returns(bool){
@@ -45,12 +47,12 @@ contract ChatApp{
     }
 
     function loginUser(address _address, string memory _name) public returns(bool){
-        require(checkUserExists(msg.sender), "User is not registered");
+        require(checkUserExists(_address), "User is not registered");
         if(keccak256(abi.encodePacked(userList[_address].name)) ==
             keccak256(abi.encodePacked(_name)) && userList[_address].addr == _address){
             userList[msg.sender].isUserLoggedIn = true;
             emit LoginUser(true);
-            return userList[msg.sender].isUserLoggedIn;
+            return userList[_address].isUserLoggedIn;
         } else {
             emit LoginUser(false);
             return false;
@@ -75,8 +77,8 @@ contract ChatApp{
         userList[_address].addr = _address;
         userList[_address].isUserLoggedIn = false;
         emit CreateAccount(_address, _name, false);
+        //getAllUsers.push(AllUserStruck(_name, _address));
         return true;
-        //getAllUsers.push(AllUserStruck(name, msg.sender));
     }
 
     //GET USERNAME
@@ -178,7 +180,15 @@ contract ChatApp{
         return allMessages[chatCode];
     }
 
-    function getAllAppUser() public view returns(AllUserStruck[] memory){
-        return getAllUsers;
+    function getAllAppUser() public returns(address[] memory,string[] memory){
+        address [] memory mAddresses = new address [](addresses.length);
+        string [] memory Name = new string [](addresses.length);
+
+        for(uint i = 0; i < addresses.length; i++){
+             mAddresses[i] = addresses[i];
+            Name[i] = userList[addresses[i]].name;
+        }
+        return(mAddresses,Name);
     }
+    
 }
