@@ -4,6 +4,7 @@ import Image from "next/image";
 //INTERNAL IMPORT
 import Style from "./UserCard.module.css";
 import images from "../../assets";
+import { AbiCoder } from "ethers/lib/utils";
 const UserCard = ({ el, i, addFriends }) => {
   return (
     <div className={Style.UserCard}>
