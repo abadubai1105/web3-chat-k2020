@@ -1,27 +1,71 @@
-
-.alluser_info{
-    width: 80%;
-    margin: 4rem auto;
+.alluser_info {
     font-size: 1.5rem;
 }
 
-.alluser{
+.header {
+    width: 80%;
+    margin: 4rem auto 2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.alluser {
     width: 80%;
     margin: 2rem auto;
-
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3rem;
 }
 
+.all {
+    width: 100%;
+    margin: 0;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+}
+
+.search input.form-control {
+    flex: 1;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 1rem;
+}
+
+.search button.btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.search button.btn span {
+    margin-right: 0.5rem;
+}
+
 @media only screen and (max-width: 35em) {
-    .alluser_info{
-        width: 90%;
+    .alluser_info {
         font-size: 1rem;
-        margin: 2rem auto;
     }
 
-    .alluser{
+    .header {
+        width: 90%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .alluser {
         width: 90%;
         grid-template-columns: 1fr;
     }
