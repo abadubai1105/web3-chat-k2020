@@ -15,6 +15,8 @@ export const ChatAppProvider = ({ children }) => {
   const [account, setAccount] = useState("");
   const [userName, setUserName] = useState("");
   const [friendLists, setFriendLists] = useState([]);
+  const [addFriendLists, setAddFriendLists] = useState([]);
+  const [waitFriendLists, setWaitFriendLists] = useState([]);
   const [friendMsg, setFriendMsg] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userLists, setUserLists] = useState([]);
@@ -40,6 +42,13 @@ export const ChatAppProvider = ({ children }) => {
       //GET MY FRIEND LIST
       const friendLists = await contract.getMyFriendList();
       setFriendLists(friendLists);
+      //GET WAIT FRIEND LIST
+      const waitFriendLists = await contract.getMyWFriendList();
+      setWaitFriendLists(waitFriendLists);
+      //GET ADD FRIEND LIST
+      const addFriendLists = await contract.getMyAFriendList();
+      setAddFriendLists(addFriendLists);
+      
       //GET ALL APP USER LIST
       const userList = await contract.getAllAppUser();
       setUserLists(userList);
@@ -99,6 +108,22 @@ export const ChatAppProvider = ({ children }) => {
     }
   };
 
+  //ACPT FRIENDS
+  const acptFriends = async ({ name, userAddress }) => {
+    try {
+      if (!name || !userAddress) return setError("Please provide data");
+      const contract = await connectingWithContract();
+      const addMyFriend = await contract.acptFriend(userAddress, name);
+      setLoading(true);
+      await addMyFriend.wait();
+      setLoading(false);
+      router.push("/");
+      window.location.reload();
+    } catch (error) {
+      setError("Something went wrong while adding friends, try again");
+    }
+  };
+
   //SEND MESSAGE TO YOUR FRIEND
   const sendMessage = async ({ msg, address }) => {
     try {
@@ -128,13 +153,17 @@ export const ChatAppProvider = ({ children }) => {
         readMessage,
         createAccount,
         addFriends,
+        acptFriends,
         sendMessage,
         readUser,
         connectWallet,
         ChechIfWalletConnected,
+        connectingWithContract,
         account,
         userName,
         friendLists,
+        addFriendLists,
+        waitFriendLists,
         friendMsg,
         userLists,
         loading,

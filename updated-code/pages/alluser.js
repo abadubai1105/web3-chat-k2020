@@ -6,12 +6,26 @@ import { ChatAppContect } from "../Context/ChatAppContext";
 
 const AllUser = () => {
   const { userLists, addFriends } = useContext(ChatAppContect);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     setFilteredUsers(userLists);
   }, [userLists]);
+
+  if(!userLists || userLists.length === 0){
+    return <div>
+    <div className={Style.alluser_info}>
+      <h1>No User Yet </h1>
+    </div>
+  </div>
+    }
+  return (
+    <div>
+      <div className={Style.alluser_info}>
+        <h1>Find Your Friends </h1>
+      </div>
 
   // Hàm tìm kiếm người dùng
   const handleSearch = (term) => {

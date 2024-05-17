@@ -9,6 +9,8 @@ contract ChatApp{
     struct user{
         string name;
         friend[] friendList;
+        friend[] addFriendlist;
+        friend[] waitFriendlist;
     }
 
     struct friend{
@@ -61,7 +63,18 @@ contract ChatApp{
         require(checkAlreadyFriends(msg.sender, friend_key)== false, "These users are already friends");
 
         _addFriend(msg.sender, friend_key, name);
-        _addFriend(friend_key, msg.sender, userList[msg.sender].name);
+        _waitFriend(friend_key, msg.sender, userList[msg.sender].name);
+    }
+
+    //ACPT FRIEND REQUEST
+    function acptFriend(address friend_key, string calldata name) external{
+        require(checkUserExists(msg.sender), "Create an account first");
+        require(checkUserExists(friend_key), "User is not registered!");
+        require(msg.sender != friend_key, "Users cannot add themeselves as friends");
+        require(checkAlreadyFriends(msg.sender, friend_key)== false, "These users are already friends");
+
+        _acptFriend(msg.sender, friend_key, name);
+        _acptFriend(friend_key, msg.sender, userList[msg.sender].name);
     }
 
     //checkAlreadyFriends
@@ -80,14 +93,34 @@ contract ChatApp{
         return false;
     }
 
+    function _acptFriend(address me, address friend_key, string memory name) internal{
+        friend memory newFriend = friend(friend_key, name);
+        userList[me].friendList.push(newFriend);
+    }
+
     function _addFriend(address me, address friend_key, string memory name) internal{
         friend memory newFriend = friend(friend_key, name);
-       userList[me].friendList.push(newFriend);
+        userList[me].addFriendlist.push(newFriend);
+    }
+
+    function _waitFriend(address me, address friend_key, string memory name) internal{
+        friend memory newFriend = friend(friend_key, name);
+        userList[me].waitFriendlist.push(newFriend);
     }
 
     //GETMY FRIEND
     function getMyFriendList() external view returns(friend[] memory){
         return userList[msg.sender].friendList;
+    }
+
+    //GET LIST ADD FRIEND
+    function getMyAFriendList() external view returns(friend[] memory){
+        return userList[msg.sender].addFriendlist;
+    }
+
+    //GET LIST WAIT FRIEND
+    function getMyWFriendList() external view returns(friend[] memory){
+        return userList[msg.sender].waitFriendlist;
     }
 
     //get chat code
