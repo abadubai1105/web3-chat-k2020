@@ -24,9 +24,5 @@ module.exports = {
         url: "http://localhost:9545", // URL of your local chain
         accounts: [process.env.PRIVATE_KEY], // Private key for local deployment
      },
-     localhost2: {
-      url: "http://localhost:8545", // URL of your local chain
-      accounts: [process.env.PRIVATE_KEY], // Private key for local deployment
-   },
    },
 };
