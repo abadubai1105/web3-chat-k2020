@@ -75,7 +75,7 @@ const Register = ({
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
 
-  const { loading,createAccount} = useContext(ChatAppContect);
+  const { loading,createAccount,setUserName} = useContext(ChatAppContect);
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
@@ -101,16 +101,20 @@ const Register = ({
                   height={30}
                 />
                 <input
+                  required
                   type="text"
                   placeholder="your name"
+                  //value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div className={Style.Model_box_right_name_info}>
                 <Image src={images.account} alt="user" width={30} height={30} />
                 <input
+                  required
                   type="text"
                   placeholder={address || "Enter address.."}
+                  //value={userAddress}
                   onChange={(e) => setUserAddress(e.target.value)}
                 />
               </div>

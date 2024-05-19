@@ -44,7 +44,11 @@ const fetchContract = (signerOrProvider) =>
 
 export const connectingWithContract = async () => {
   try {
-    const web3modal = new Web3Modal();
+    const providerOptions = {};
+    const web3modal = new Web3Modal(
+      cacheProvider: true, // Enable caching provider
+      providerOptions,
+    );
     const connection = await web3modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
