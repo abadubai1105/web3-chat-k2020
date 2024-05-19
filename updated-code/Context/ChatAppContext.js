@@ -100,7 +100,7 @@ export const ChatAppProvider = ({ children }) => {
         setLoading(true);
         await tx.wait();
         setLoading(false);
-        ưindow.location.reload();
+        window.location.reload();
       } else {
         setError("Please connect to MetaMask");
       }
@@ -226,6 +226,7 @@ export const ChatAppProvider = ({ children }) => {
         error,
         currentUserName,
         currentUserAddress,
+        setUserName
       }}
     >
       {children}
