@@ -75,7 +75,7 @@ const Register = ({
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
 
-  const { loading,createAccount,setUserName} = useContext(ChatAppContect);
+  const { loading,createAccount,setUserName,account} = useContext(ChatAppContect);
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
@@ -127,7 +127,7 @@ const Register = ({
                   Submit
                 </button>
 
-                <button onClick={() => openBox(false)}>
+                <button onClick={() => history.back()}>
                   {""}
                   <Image src={images.close} alt="send" width={30} height={30} />
                   {""}

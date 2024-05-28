@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {ethers }  from "ethers";
+import {
+  KeyHelper,
+  SignalProtocolAddress,
+  SessionBuilder,
+  SessionCipher,
+  Storage,
+} from '@privacyresearch/libsignal-protocol-typescript';
+//const KeyHelper = signal.KeyHelper;
 //INTERNAL IMPORT
 import {
   CheckIfWalletConnected,
@@ -67,47 +75,51 @@ export const ChatAppProvider = ({ children }) => {
 
 
   //REGISTER USER
-  const createAccount = async ({name}) => {
+  const createAccount = async ({name,userAddress}) => {
     //event.preventDefault();
     console.log(name, account);
     try {
-      if (!name)
+      if (!name){
         return setError("Name And Account Address, cannot be empty");
-
+      }
       const contract = await connectingWithContract();
       console.log(contract);
-      const getCreatedUser = await contract.createAccount(name);
+      const getCreatedUser = await contract.registerUser(userAddress, name);
 
       setLoading(true);
-      await getCreatedUser.wait();
+      await getCreatedUser.wait().then((res) => {
+        alert("User Registered successfully")});
       setLoading(false);
       window.location.reload();
     } catch (error) {
       setError("Error while creating your account Pleas reload browser");
+      alert(error);
     }
   }
 
 
-  const loginUser = async (event) => {
+  const loginUser = async ({name,userAddress}) => {
+    console.log(name, account);
     try{
-      console.log("Logging In User");
-      const {ethereum} = window;
-      if(ethereum){
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const chatContract = new ethers.Contract(ChatAppAddress, ChatAppABI, signer);
-        const tx = await chatContract.loginUser(currentAccount,address,name);
-        setLoading(true);
-        await tx.wait();
-        setLoading(false);
-        window.location.reload();
-      } else {
-        setError("Please connect to MetaMask");
+      if (!name){
+        return setError("Name And Account Address, cannot be empty");
       }
-    
+      console.log("Logging In User");
+      const contract = await connectingWithContract();
+      console.log(contract);
+      const tx = await contract.loginUser(userAddress,name);
+      setLoading(true);
+      const rc = await tx.wait();
+      const event = rc.events.find((event) => event.event === "LoginUser");
+      const [isUserLoggedIn] = await event.args;
+      console.log(isUserLoggedIn);
+      setLoading(false);
+      window.location.reload();
+      //Router.push("/");
     }
     catch (error) {
       console.log("Currently You Have no Message");
+      alert(error);
     }
   };
 
@@ -122,6 +134,107 @@ export const ChatAppProvider = ({ children }) => {
     }
   };
 
+  async function generateKeys() {
+    const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
+    const registrationId = KeyHelper.generateRegistrationId();
+    const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, 1);
+    const oneTimePreKeys = await KeyHelper.generatePreKeys(0, 10);
+
+    return {
+        identityKeyPair,
+        registrationId,
+        signedPreKey,
+        oneTimePreKeys
+    };
+  }
+  async function registerKeys(identityKeyPair, signedPreKey, signedPreKeySignature, oneTimePreKeys) {
+    const identityKey = identityKeyPair.pubKey;
+    const signedPreKeyPublic = signedPreKey.keyPair.pubKey;
+    const oneTimePreKeysPublic = oneTimePreKeys.map(key => key.pubKey);
+
+    const tx = await contract.registerKeys(
+        identityKey,
+        signedPreKeyPublic,
+        signedPreKeySignature,
+        oneTimePreKeysPublic
+    );
+
+    await tx.wait();
+    console.log("Keys registered successfully");
+  }
+  async function getKeyBundle(userAddress) {
+    const keyBundle = await contract.getKeyBundle(userAddress);
+    console.log("Key Bundle:", keyBundle);
+    return keyBundle;
+  }
+  async function encryptMessage(receiverAddress, plaintext) {
+    // Get the receiver's key bundle from the smart contract
+    const receiverKeyBundle = await getKeyBundle(receiverAddress);
+
+    // Create a session builder
+    const sessionBuilder = new signal.SessionBuilder(store, receiverAddress);
+
+    // Process the receiver's pre-key bundle
+    await sessionBuilder.processPreKey({
+        identityKey: receiverKeyBundle.identityKey,
+        signedPreKey: receiverKeyBundle.signedPreKey,
+        signedPreKeySignature: receiverKeyBundle.signedPreKeySignature,
+        preKey: receiverKeyBundle.oneTimePreKeys[0], // Using the first one-time pre-key
+    });
+
+    // Create a session cipher
+    const sessionCipher = new signal.SessionCipher(store, receiverAddress);
+
+    // Encrypt the message
+    const ciphertext = await sessionCipher.encrypt(Buffer.from(plaintext, 'utf-8'));
+    return ciphertext;
+  }
+  async function decryptMessage(senderAddress, ciphertext) {
+    // Create a session cipher
+    const sessionCipher = new signal.SessionCipher(store, senderAddress);
+
+    // Decrypt the message
+    const plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary');
+    return plaintext.toString('utf-8');
+  }
+  // const registerKeys = async () => {
+  //   try {
+  //     if (!provider || !signer || !contract) {
+  //       setStatus("Provider, signer, or contract not initialized");
+  //       return;
+  //     }
+
+  //     // Generate keys using @privacyresearch/libsignal-protocol-typescript
+  //     const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
+  //     const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, 1);
+  //     const oneTimePreKeys = await KeyHelper.generatePreKeys(0, 10);
+
+  //     const identityKey = '0x' + Buffer.from(identityKeyPair.pubKey).toString('hex');
+  //     const signedPreKeyPublic = '0x' + Buffer.from(signedPreKey.keyPair.pubKey).toString('hex');
+  //     const signedPreKeySignature = '0x' + Buffer.from(signedPreKey.signature).toString('hex');
+  //     const oneTimePreKeysPublic = oneTimePreKeys.map(key => '0x' + Buffer.from(key.pubKey).toString('hex'));
+
+  //     console.log("Registering keys with the following data:", {
+  //       identityKey,
+  //       signedPreKeyPublic,
+  //       signedPreKeySignature,
+  //       oneTimePreKeysPublic
+  //     });
+
+  //     const tx = await contract.registerKeys(
+  //       identityKey,
+  //       signedPreKeyPublic,
+  //       signedPreKeySignature,
+  //       oneTimePreKeysPublic
+  //     );
+
+  //     await tx.wait();
+  //     setStatus('Keys registered successfully');
+  //   } catch (error) {
+  //     console.error("Error registering keys:", error);
+  //     setStatus('Error registering keys');
+  //   }
+  // };
   //CREATE ACCOUNT
   // const createAccount = async (event) => {
   //   event.preventDefault();
@@ -142,6 +255,8 @@ export const ChatAppProvider = ({ children }) => {
   //     setError("Error while creating your account Pleas reload browser");
   //   }
   // };
+
+
 
   //ADD YOUR FRIENDS
   const addFriends = async ({ name, userAddress }) => {
@@ -226,7 +341,7 @@ export const ChatAppProvider = ({ children }) => {
         error,
         currentUserName,
         currentUserAddress,
-        setUserName
+        setUserName,
       }}
     >
       {children}
