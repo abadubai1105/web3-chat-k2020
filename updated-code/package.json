@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
     "dotenv": "^16.4.5",
     "ethers": "^5.7.2",
     "next": "^14.2.3",

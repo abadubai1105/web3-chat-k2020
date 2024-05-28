@@ -187,7 +187,7 @@ const Model = ({
               </div>
 
               <div className={Style.Model_box_right_name_btn}>
-                <button onClick={() => functionName({ name, userAddress })}>
+                <button onClick={() => functionName({name, userAddress})}>
                   {""}
                   <Image src={images.send} alt="send" width={30} height={30} />
                   {""}

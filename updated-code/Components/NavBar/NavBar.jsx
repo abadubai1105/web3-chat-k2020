@@ -37,7 +37,7 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const [openModel, setOpenModel] = useState(false);
 
-  const { account, userName, connectWallet, createAccount, error } =
+  const { account, userName, connectWallet, loginUser, error } =
     useContext(ChatAppContect);
   return (
     <div className={Style.NavBar}>
@@ -136,7 +136,7 @@ const NavBar = () => {
             info="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate maxime assumenda exercitationem voluptatibus, vero aliquid in tempore aut, impedit dolores voluptate recusandae nulla fuga? Praesentium iusto mollitia sint fugit! Placeat?"
             smallInfo="Kindley seclet your name..."
             image={images.hero}
-            functionName={createAccount}
+            functionName={loginUser}
             address={account}
           />
         </div>
