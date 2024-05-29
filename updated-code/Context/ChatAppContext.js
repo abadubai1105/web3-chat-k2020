@@ -66,9 +66,7 @@ export const ChatAppProvider = ({ children }) => {
     //REGISTER USER
 
     const createAccount = async ({name,userAddress}) => {
-
       console.log(name, account);
-  
       try {
         if (!name){
           return setError("Name And Account Address, cannot be empty");
@@ -95,9 +93,7 @@ export const ChatAppProvider = ({ children }) => {
     }
   
     const loginUser = async ({name,userAddress}) => {
-  
       console.log(name, account);
-  
       try{
         if (!name){
           return setError("Name And Account Address, cannot be empty");
