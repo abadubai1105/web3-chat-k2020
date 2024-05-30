@@ -114,10 +114,9 @@ export const ChatAppProvider = ({ children }) => {
 
         setLoading(false);
         window.location.reload();
-        //Router.push("/");
       }
       catch (error) {
-        console.log("Currently You Have no Message");
+        console.log("Cannot login");
         alert(error);
       }
     };

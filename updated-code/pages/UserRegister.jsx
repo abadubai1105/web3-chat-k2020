@@ -14,7 +14,6 @@ const Register = ({
   title,
   address,
   head,
-  info,
   smallInfo,
   image,
 }) => {
@@ -22,7 +21,7 @@ const Register = ({
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
 
-  const { loading,createAccount,setUserName,account} = useContext(ChatAppContect);
+  const { loading,createAccount} = useContext(ChatAppContect);
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
@@ -33,7 +32,6 @@ const Register = ({
           <h1>
             {title} <span>{head}</span>
           </h1>
-          <p>{info}</p>
           <small>{smallInfo}</small>
 
           {loading == true ? (

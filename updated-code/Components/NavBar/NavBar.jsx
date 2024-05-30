@@ -131,10 +131,9 @@ const NavBar = () => {
         <div className={Style.modelBox}>
           <Model
             openBox={setOpenModel}
-            title="WELCOME TO"
-            head="CHAT APP"
-            info="WEB3 CHAT APP"
-            smallInfo="Select your name..."
+            title="WELCOME TO WEB3 CHAT APP"
+            head="READY TO CHAT"
+            smallInfo="ĐĂNG NHẬP/ ĐĂNG KÝ"
             image={images.hero}
             functionName={loginUser}
             address={account}

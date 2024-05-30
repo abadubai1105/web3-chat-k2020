@@ -1,10 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config()
 
-const { PRIVATE_KEY } = process.env;
-
-const { SEPOLIA_PRIVATE_KEY, ALCHEMY_API_KEY } = process.env;
-
 module.exports = {
   solidity: "0.8.17",
     networks: {

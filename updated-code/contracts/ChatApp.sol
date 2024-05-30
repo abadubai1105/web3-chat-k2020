@@ -49,14 +49,14 @@ contract ChatApp{
     }
 
     //CREATE ACCOUNT
-    function createAccount(string calldata name) external {
-        require(checkUserExists(msg.sender) == false, "User already exists");
-        require(bytes(name).length>0, "Username cannot be empty");
+    // function createAccount(string calldata name) external {
+    //     require(checkUserExists(msg.sender) == false, "User already exists");
+    //     require(bytes(name).length>0, "Username cannot be empty");
 
-        userList[msg.sender].name = name;
+    //     userList[msg.sender].name = name;
 
-        getAllUsers.push(AllUserStruck(name, msg.sender));
-    }
+    //     getAllUsers.push(AllUserStruck(name, msg.sender));
+    // }
 
     //LOGIN
     function loginUser(address _address, string memory _name) external returns(bool){
@@ -84,7 +84,6 @@ contract ChatApp{
     }
 
     //CREATE ACCOUNT
-
     function registerUser(address _address, string memory _name) external returns(bool){
         require(bytes(_name).length > 0, "Username cannot be empty");
         require(checkUserExists(_address) == false, "User already exists");
@@ -93,8 +92,12 @@ contract ChatApp{
         userList[_address].addr = _address;
         userList[_address].isUserLoggedIn = false;
         emit RegisterUser(_address, _name, false);
+        
+        getAllUsers.push(AllUserStruck(_name, msg.sender));
+
         return true;
-    }
+        
+            }
 
     //GET USERNAME
     function getUsername(address pubkey) external view returns(string memory){

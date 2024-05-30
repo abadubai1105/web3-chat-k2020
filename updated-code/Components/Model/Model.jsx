@@ -12,7 +12,6 @@ const Model = ({
   title,
   address,
   head,
-  info,
   smallInfo,
   image,
   functionName,
@@ -32,7 +31,6 @@ const Model = ({
           <h1>
             {title} <span>{head}</span>
           </h1>
-          <p>{info}</p>
           <small>{smallInfo}</small>
 
           {loading == true ? (
