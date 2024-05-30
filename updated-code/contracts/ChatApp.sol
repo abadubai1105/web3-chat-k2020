@@ -5,12 +5,20 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract ChatApp{
 
+    event LoginUser(bool isUserLoggedIn);
+
+    event RegisterUser(address addr, string name,bool isUserLoggedIn);
+
+    event LogoutUser(bool isUserLoggedIn);
+
     //USER STRUCT
     struct user{
+        address addr;
         string name;
         friend[] friendList;
         friend[] addFriendlist;
         friend[] waitFriendlist;
+        bool isUserLoggedIn;
     }
 
     struct friend{
@@ -31,8 +39,9 @@ contract ChatApp{
 
     AllUserStruck[] getAllUsers;
 
-    mapping(address => user) userList;
+    mapping(address => user) public userList;
     mapping(bytes32 => message[]) allMessages;
+    address [] public addresses;
 
     //CHECK USER EXIST
     function checkUserExists(address pubkey) public view returns(bool){
@@ -40,14 +49,55 @@ contract ChatApp{
     }
 
     //CREATE ACCOUNT
-    function createAccount(string calldata name) external {
-        require(checkUserExists(msg.sender) == false, "User already exists");
-        require(bytes(name).length>0, "Username cannot be empty");
+    // function createAccount(string calldata name) external {
+    //     require(checkUserExists(msg.sender) == false, "User already exists");
+    //     require(bytes(name).length>0, "Username cannot be empty");
 
-        userList[msg.sender].name = name;
+    //     userList[msg.sender].name = name;
 
-        getAllUsers.push(AllUserStruck(name, msg.sender));
+    //     getAllUsers.push(AllUserStruck(name, msg.sender));
+    // }
+
+    //LOGIN
+    function loginUser(address _address, string memory _name) external returns(bool){
+        require(checkUserExists(_address), "User is not registered");
+        if(keccak256(abi.encodePacked(userList[_address].name)) ==
+            keccak256(abi.encodePacked(_name)) && userList[_address].addr == _address){
+            userList[msg.sender].isUserLoggedIn = true;
+            emit LoginUser(true);
+            return userList[_address].isUserLoggedIn;
+        } else {
+            emit LoginUser(false);
+            return false;
+        }
     }
+
+
+    function checkIsUserLogged(address _address) public view returns (bool){
+        return (userList[_address].isUserLoggedIn);
+    }
+
+    function logoutUser(address _address) public{
+        require(checkIsUserLogged(_address), "User is not registered");
+        userList[_address].isUserLoggedIn = false;
+        emit LoginUser(false);
+    }
+
+    //CREATE ACCOUNT
+    function registerUser(address _address, string memory _name) external returns(bool){
+        require(bytes(_name).length > 0, "Username cannot be empty");
+        require(checkUserExists(_address) == false, "User already exists");
+        
+        userList[_address].name = _name;
+        userList[_address].addr = _address;
+        userList[_address].isUserLoggedIn = false;
+        emit RegisterUser(_address, _name, false);
+        
+        getAllUsers.push(AllUserStruck(_name, msg.sender));
+
+        return true;
+        
+            }
 
     //GET USERNAME
     function getUsername(address pubkey) external view returns(string memory){
@@ -66,12 +116,9 @@ contract ChatApp{
         _waitFriend(friend_key, msg.sender, userList[msg.sender].name);
     }
 
-    //ACPT FRIEND REQUEST
-    function acptFriend(address friend_key, string calldata name) external{
+    function acptFriend(address friend_key, string calldata name) external {
         require(checkUserExists(msg.sender), "Create an account first");
         require(checkUserExists(friend_key), "User is not registered!");
-        require(msg.sender != friend_key, "Users cannot add themeselves as friends");
-        require(checkAlreadyFriends(msg.sender, friend_key)== false, "These users are already friends");
 
         _acptFriend(msg.sender, friend_key, name);
         _acptFriend(friend_key, msg.sender, userList[msg.sender].name);

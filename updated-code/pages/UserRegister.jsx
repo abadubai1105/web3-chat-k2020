@@ -1,26 +1,27 @@
+
 import React, { useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 //INTERNAL IMPORT
-import Style from "./Model.module.css";
-import images from "../../assets";
-import { ChatAppContect } from "../../Context/ChatAppContext";
-import { Loader } from "../../Components/index";
+import Style from "../Components/Model/Model.module.css";
+import images from "../assets";
+import { ChatAppContect } from "../Context/ChatAppContext";
+import { Loader } from "../Components/index";
 
-const Model = ({
+
+const Register = ({
   openBox,
   title,
   address,
   head,
   smallInfo,
   image,
-  functionName,
 }) => {
   //USESTATE
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
 
-  const { loading } = useContext(ChatAppContect);
+  const { loading,createAccount} = useContext(ChatAppContect);
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
@@ -45,29 +46,33 @@ const Model = ({
                   height={30}
                 />
                 <input
+                  required
                   type="text"
                   placeholder="your name"
+                  //value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div className={Style.Model_box_right_name_info}>
                 <Image src={images.account} alt="user" width={30} height={30} />
                 <input
+                  required
                   type="text"
                   placeholder={address || "Enter address.."}
+                  //value={userAddress}
                   onChange={(e) => setUserAddress(e.target.value)}
                 />
               </div>
 
               <div className={Style.Model_box_right_name_btn}>
-                <button onClick={() => functionName({ name, userAddress })}>
+                <button onClick={() => createAccount({ name, userAddress })}>
                   {""}
                   <Image src={images.send} alt="send" width={30} height={30} />
                   {""}
                   Submit
                 </button>
 
-                <button onClick={() => openBox(false)}>
+                <button onClick={() => history.back()}>
                   {""}
                   <Image src={images.close} alt="send" width={30} height={30} />
                   {""}
@@ -83,4 +88,4 @@ const Model = ({
   );
 };
 
-export default Model;
+export default Register;

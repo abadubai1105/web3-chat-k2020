@@ -37,7 +37,7 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const [openModel, setOpenModel] = useState(false);
 
-  const { account, userName, connectWallet, createAccount, error } =
+  const { account, userName, connectWallet, loginUser, error } =
     useContext(ChatAppContect);
   return (
     <div className={Style.NavBar}>
@@ -131,12 +131,11 @@ const NavBar = () => {
         <div className={Style.modelBox}>
           <Model
             openBox={setOpenModel}
-            title="WELCOME TO"
-            head="CHAT APP"
-            info="WEB3 CHAT APP"
-            smallInfo="Select your name..."
+            title="WELCOME TO WEB3 CHAT APP"
+            head="READY TO CHAT"
+            smallInfo="ĐĂNG NHẬP/ ĐĂNG KÝ"
             image={images.hero}
-            functionName={createAccount}
+            functionName={loginUser}
             address={account}
           />
         </div>

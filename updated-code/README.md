@@ -11,3 +11,11 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
+
+
+"dotenv": "^16.4.5",
+"ethers": "^5.7.2",
+"next": "^14.2.3",
+"react": "18.2.0",
+"react-dom": "18.2.0",
+"web3modal": "^1.9.9"
