@@ -110,13 +110,151 @@
       ]
     },
     "/mnt/c/Users/KhanhDang/Desktop/FE_test/test/updated-code/contracts/ChatApp.sol": {
-<<<<<<< HEAD
-      "lastModificationDate": 1717802659230,
-      "contentHash": "28bd673a446142ad3b7baefbc053e4e5",
-=======
       "lastModificationDate": 1716839463418,
       "contentHash": "8d668744ec3cac74b5df60a8cf05e458",
->>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
+      "sourceName": "contracts/ChatApp.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.7.0 <0.9.0"
+      ],
+      "artifacts": [
+        "ChatApp"
+      ]
+    },
+    "/mnt/c/Users/KhanhDang/Desktop/test-Dang/updated-code/contracts/Math.sol": {
+      "lastModificationDate": 1717828653783,
+      "contentHash": "fa800745940e26d61eb7129b4f0efd72",
+      "sourceName": "contracts/Math.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Math"
+      ]
+    },
+    "/mnt/c/Users/KhanhDang/Desktop/test-Dang/updated-code/contracts/Strings.sol": {
+      "lastModificationDate": 1717828653799,
+      "contentHash": "bde3a67c9acf5e6e23249e35a9ec304f",
+      "sourceName": "contracts/Strings.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "contracts/Math.sol",
+        "contracts/SignedMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Strings"
+      ]
+    },
+    "/mnt/c/Users/KhanhDang/Desktop/test-Dang/updated-code/contracts/SignedMath.sol": {
+      "lastModificationDate": 1717828653799,
+      "contentHash": "8e057712f7092f645e83d5b055886c1a",
+      "sourceName": "contracts/SignedMath.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SignedMath"
+      ]
+    },
+    "/mnt/c/Users/KhanhDang/Desktop/test-Dang/updated-code/contracts/ChatApp.sol": {
+      "lastModificationDate": 1717836973788,
+      "contentHash": "aabb52bdca092a73771be8c2b4e17187",
       "sourceName": "contracts/ChatApp.sol",
       "solcConfig": {
         "version": "0.8.17",
