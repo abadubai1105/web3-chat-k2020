@@ -110,8 +110,13 @@
       ]
     },
     "/mnt/c/Users/KhanhDang/Desktop/FE_test/test/updated-code/contracts/ChatApp.sol": {
+<<<<<<< HEAD
       "lastModificationDate": 1717802659230,
       "contentHash": "28bd673a446142ad3b7baefbc053e4e5",
+=======
+      "lastModificationDate": 1716839463418,
+      "contentHash": "8d668744ec3cac74b5df60a8cf05e458",
+>>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
       "sourceName": "contracts/ChatApp.sol",
       "solcConfig": {
         "version": "0.8.17",

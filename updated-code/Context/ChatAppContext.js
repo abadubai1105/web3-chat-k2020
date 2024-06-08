@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+<<<<<<< HEAD
 import {ethers, utils }  from "ethers";
 // import {
 //   KeyHelper,
@@ -9,6 +10,17 @@ import {ethers, utils }  from "ethers";
 //   Storage,
 // } from '@privacyresearch/libsignal-protocol-typescript';
 // //const KeyHelper = signal.KeyHelper;
+=======
+import {ethers }  from "ethers";
+import {
+  KeyHelper,
+  SignalProtocolAddress,
+  SessionBuilder,
+  SessionCipher,
+  Storage,
+} from '@privacyresearch/libsignal-protocol-typescript';
+//const KeyHelper = signal.KeyHelper;
+>>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
 //INTERNAL IMPORT
 import {
   CheckIfWalletConnected,
@@ -111,9 +123,15 @@ export const ChatAppProvider = ({ children }) => {
       console.log(contract);
       const tx = await contract.loginUser(userAddress,name);
       setLoading(true);
+<<<<<<< HEAD
       // const rc = await tx.wait();
       // const event = rc.events.find((event) => event.event === "LoginUser");
       // const [isUserLoggedIn] = await event.args;
+=======
+      const rc = await tx.wait();
+      const event = rc.events.find((event) => event.event === "LoginUser");
+      const [isUserLoggedIn] = await event.args;
+>>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
       console.log(isUserLoggedIn);
       setLoading(false);
       window.location.reload();
@@ -121,7 +139,11 @@ export const ChatAppProvider = ({ children }) => {
     }
     catch (error) {
       console.log("Currently You Have no Message");
+<<<<<<< HEAD
       alert(error.args);
+=======
+      alert(error);
+>>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
     }
   };
 
@@ -137,6 +159,7 @@ export const ChatAppProvider = ({ children }) => {
     }
   };
 
+<<<<<<< HEAD
   // async function generateKeys() {
   //   const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
   //   const registrationId = KeyHelper.generateRegistrationId();
@@ -200,6 +223,71 @@ export const ChatAppProvider = ({ children }) => {
   //   const plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary');
   //   return plaintext.toString('utf-8');
   // }
+=======
+  async function generateKeys() {
+    const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
+    const registrationId = KeyHelper.generateRegistrationId();
+    const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, 1);
+    const oneTimePreKeys = await KeyHelper.generatePreKeys(0, 10);
+
+    return {
+        identityKeyPair,
+        registrationId,
+        signedPreKey,
+        oneTimePreKeys
+    };
+  }
+  async function registerKeys(identityKeyPair, signedPreKey, signedPreKeySignature, oneTimePreKeys) {
+    const identityKey = identityKeyPair.pubKey;
+    const signedPreKeyPublic = signedPreKey.keyPair.pubKey;
+    const oneTimePreKeysPublic = oneTimePreKeys.map(key => key.pubKey);
+
+    const tx = await contract.registerKeys(
+        identityKey,
+        signedPreKeyPublic,
+        signedPreKeySignature,
+        oneTimePreKeysPublic
+    );
+
+    await tx.wait();
+    console.log("Keys registered successfully");
+  }
+  async function getKeyBundle(userAddress) {
+    const keyBundle = await contract.getKeyBundle(userAddress);
+    console.log("Key Bundle:", keyBundle);
+    return keyBundle;
+  }
+  async function encryptMessage(receiverAddress, plaintext) {
+    // Get the receiver's key bundle from the smart contract
+    const receiverKeyBundle = await getKeyBundle(receiverAddress);
+
+    // Create a session builder
+    const sessionBuilder = new signal.SessionBuilder(store, receiverAddress);
+
+    // Process the receiver's pre-key bundle
+    await sessionBuilder.processPreKey({
+        identityKey: receiverKeyBundle.identityKey,
+        signedPreKey: receiverKeyBundle.signedPreKey,
+        signedPreKeySignature: receiverKeyBundle.signedPreKeySignature,
+        preKey: receiverKeyBundle.oneTimePreKeys[0], // Using the first one-time pre-key
+    });
+
+    // Create a session cipher
+    const sessionCipher = new signal.SessionCipher(store, receiverAddress);
+
+    // Encrypt the message
+    const ciphertext = await sessionCipher.encrypt(Buffer.from(plaintext, 'utf-8'));
+    return ciphertext;
+  }
+  async function decryptMessage(senderAddress, ciphertext) {
+    // Create a session cipher
+    const sessionCipher = new signal.SessionCipher(store, senderAddress);
+
+    // Decrypt the message
+    const plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary');
+    return plaintext.toString('utf-8');
+  }
+>>>>>>> 33909c455eab14c833485d8ce3a3c1288b322441
   // const registerKeys = async () => {
   //   try {
   //     if (!provider || !signer || !contract) {
