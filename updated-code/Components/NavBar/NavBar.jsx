@@ -43,7 +43,9 @@ const NavBar = () => {
     <div className={Style.NavBar}>
       <div className={Style.NavBar_box}>
         <div className={Style.NavBar_box_left}>
-          <Image src={images.logo} alt="logo" width={50} height={50} />
+          <Link href="/alluser">
+            <Image src={images.logo1} alt="logo" width={50} height={50} />
+          </Link>
         </div>
         <div className={Style.NavBar_box_right}>
           {/* //DESKTOP */}
@@ -132,8 +134,8 @@ const NavBar = () => {
           <Model
             openBox={setOpenModel}
             title="WELCOME TO WEB3 CHAT APP"
-            head="READY TO CHAT"
-            smallInfo="ĐĂNG NHẬP/ ĐĂNG KÝ"
+            head="FROM K20"
+            smallInfo="LOG IN/REGISTER"
             image={images.hero}
             functionName={loginUser}
             address={account}

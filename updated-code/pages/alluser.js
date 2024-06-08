@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { UserCard } from "../Components/index"; 
 import Style from "../styles/alluser.module.css"; 
 import { ChatAppContect } from "../Context/ChatAppContext"; 
+import 'bootstrap/dist/css/bootstrap.css';
  
 const AllUser = () => { 
   const { userLists, addFriends } = useContext(ChatAppContect); 

@@ -1,35 +1,78 @@
-.UserCard{
-    background-color: rgba(0,0,0, 0.25);
-    border-radius: .5rem;
+.UserCard {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 0.5rem;
     text-align: center;
     padding: 1rem;
     position: relative;
-}
-
-.UserCard_box_img{
+  }
+  
+  .UserCard_box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .UserCard_box_img_wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .UserCard_box_img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
     border-radius: 50%;
-}
-
-.UserCard_box_info{
-    line-height: .6;
-}
-
-.UserCard_box_info button{
-    background-color: rgba(0,0,0, 0.25);
-    color: #F18303;
+  }
+  
+  .uploadButton {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 12px;
+    visibility: hidden;
+  }
+  
+  .UserCard_box_img_wrapper:hover .uploadButton {
+    visibility: visible;
+  }
+  
+  .UserCard_box_info {
+    line-height: 0.7;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .UserCard_box_info button {
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #f18303;
     width: 50%;
     padding: 1rem;
     border: none;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     font-size: 1rem;
     cursor: pointer;
-}
-
-.number{
+  }
+  
+  .number {
     position: absolute;
     right: 1rem;
     padding: 1rem 1.3rem;
     border-radius: 50%;
-    background-color: #F18303;
+    background-color: #f18303;
     top: 1rem;
-}
+  }
+  
