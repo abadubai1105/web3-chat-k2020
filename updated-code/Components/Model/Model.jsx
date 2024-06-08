@@ -71,9 +71,9 @@ const Model = ({
                   {""}
                   <Image src={images.close} alt="send" width={30} height={30} />
                   {""}
-                  Cancle
+                  Cancel
                 </button>
-                <p>Chưa có tài khoản? <Link href='/UserRegister' onClick={() => openBox(false)}>Đăng Ký</Link></p>
+                <p>Do not have account? <Link href='/UserRegister' onClick={() => openBox(false)}>Register</Link></p>
               </div>
             </div>
           )}
