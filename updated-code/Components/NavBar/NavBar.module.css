@@ -24,6 +24,12 @@
     gap: 2rem;
     border-bottom: 2px solid transparent;
     transition:  all .3s ease-in-out;
+    text-decoration: none;
+}
+
+.NavBar_box_right_menu_items_link{
+    text-decoration: none;
+    color: #000000;
 }
 
 .active_btn{
@@ -38,12 +44,12 @@
 }
 
 .NavBar_box_right_connect button{
-    background-color: rgba(0,0,0, 0.25);
+    background-color: rgba(38, 209, 235, 0.532);
     padding: 1rem;
     border: none;
     border-radius: .5rem;
     font-size: 1.1rem;
-    color: #F18303;
+    color: #000000;
     font-weight: 700;
     cursor: pointer;
 
@@ -67,7 +73,7 @@
 .modelBox{
     position: fixed;
     inset: 0 0 0 0;
-    background-color: #292F3F;
+    background-color: #ffffff;
     z-index: 77777777;
 }
 
@@ -101,6 +107,7 @@
         inset: 0 0 0 0;
         padding:  4rem;
         display: none;
+        text-decoration: none;
     }
 
     .mobile_menu{
