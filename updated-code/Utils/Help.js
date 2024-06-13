@@ -6,12 +6,9 @@ import crypto from 'crypto';
 
 exports.encrypt= (text, secret) => {
     const iv = crypto.randomBytes(16);
-    alert(iv);
     const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(secret, 'hex'), iv);
-    alert(cipher);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    alert(encrypted);
     return {
         iv: iv.toString('hex'),
         content: encrypted
