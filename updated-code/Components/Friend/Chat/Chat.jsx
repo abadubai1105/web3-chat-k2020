@@ -8,8 +8,6 @@ import images from "../../../assets";
 import { converTime } from "../../../Utils/apiFeature";
 import { Loader } from "../../index";
 
-const { account, userName, connectWallet, loginUser, error } =
-    useContext(ChatAppContect);
 const Chat = ({
   functionName,
   readMessage,
@@ -121,7 +119,6 @@ const Chat = ({
                     functionName({
                       msg: message,
                       address: router.query.address,
-                      publicKey: account,
                     })
                   }
                 />

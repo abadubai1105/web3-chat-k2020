@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {ethers }  from "ethers";
-import {
-  KeyHelper,
-  SignalProtocolAddress,
-  SessionBuilder,
-  SessionCipher,
-  Storage,
-} from '@privacyresearch/libsignal-protocol-typescript';
+const crypto = require('crypto');
 //const KeyHelper = signal.KeyHelper;
 //INTERNAL IMPORT
 import {
@@ -16,7 +10,7 @@ import {
   connectingWithContract,
 } from "../Utils/apiFeature";
 
-import Utils from "../Utils/Help";
+import {encrypt,decrypt,computeSecret,createHMAC} from "../Utils/Help";
 
 export const ChatAppContect = React.createContext();
 
@@ -76,7 +70,20 @@ export const ChatAppProvider = ({ children }) => {
   }, []);
 
 
-
+  const decryptMessages = (messages,secretKey) => {
+    return messages.map((msg) => {
+      const decryptedMsg = decrypt(msg.msg,secretKey,msg.iv);
+      //const isValid = verifyHMAC(msg.msg,msg.hmac,secretKey);
+      // if (isValid) {
+      //   console.log('Decrypted Message:', decryptedMessage);
+      //   //setFriendMsg(decryptedMessage);
+      // } else {
+      //   console.log('HMAC verification failed');
+      //   //return;
+      // }
+      return { ...msg, msg: decryptedMsg };
+    });
+  };
   //REGISTER USER
   const createAccount = async ({name,userAddress}) => {
     //event.preventDefault();
@@ -87,8 +94,13 @@ export const ChatAppProvider = ({ children }) => {
       }
       const contract = await connectingWithContract();
       console.log(contract);
-      const getCreatedUser = await contract.registerUser(userAddress, name);
-
+      
+      const alice = crypto.createECDH('secp256k1');
+      alice.generateKeys();
+      const alicePublicKey = '0x'+ alice.getPublicKey('hex');
+      alert(alicePublicKey);
+      const alicePrivateKey = '0x'+ alice.getPrivateKey('hex');
+      const getCreatedUser = await contract.registerUser(userAddress, name,alicePublicKey,alicePrivateKey);
       setLoading(true);
       await getCreatedUser.wait().then((res) => {
         alert("User Registered successfully")});
@@ -138,136 +150,23 @@ export const ChatAppProvider = ({ children }) => {
     try {
       const contract = await connectingWithContract();
       const read = await contract.readMessage(friendAddress);
-      decryptedMessage = Utils.decrypt(read);
-      setFriendMsg(decryptedMessage);
+      if (read.length === 0) {
+        setFriendMsg(read);
+      } else {
+      const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
+      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2), 'hex');
+      const alice = crypto.createECDH('secp256k1');
+      const pp = await contract.getPrivateKey(account);
+      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+      const decryptedMsg = decryptMessages(read,aliceSecret);
+      alert("decrypt",decryptedMsg);
+      setFriendMsg(decryptedMsg);
+      }
     } catch (error) {
       console.log("Currently You Have no Message");
     }
   };
-
-  async function generateKeys() {
-    const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
-    const registrationId = KeyHelper.generateRegistrationId();
-    const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, 1);
-    const oneTimePreKeys = await KeyHelper.generatePreKeys(0, 10);
-
-    return {
-        identityKeyPair,
-        registrationId,
-        signedPreKey,
-        oneTimePreKeys
-    };
-  }
-  async function registerKeys(identityKeyPair, signedPreKey, signedPreKeySignature, oneTimePreKeys) {
-    const identityKey = identityKeyPair.pubKey;
-    const signedPreKeyPublic = signedPreKey.keyPair.pubKey;
-    const oneTimePreKeysPublic = oneTimePreKeys.map(key => key.pubKey);
-
-    const tx = await contract.registerKeys(
-        identityKey,
-        signedPreKeyPublic,
-        signedPreKeySignature,
-        oneTimePreKeysPublic
-    );
-
-    await tx.wait();
-    console.log("Keys registered successfully");
-  }
-  async function getKeyBundle(userAddress) {
-    const keyBundle = await contract.getKeyBundle(userAddress);
-    console.log("Key Bundle:", keyBundle);
-    return keyBundle;
-  }
-  async function encryptMessage(receiverAddress, plaintext) {
-    // Get the receiver's key bundle from the smart contract
-    const receiverKeyBundle = await getKeyBundle(receiverAddress);
-
-    // Create a session builder
-    const sessionBuilder = new signal.SessionBuilder(store, receiverAddress);
-
-    // Process the receiver's pre-key bundle
-    await sessionBuilder.processPreKey({
-        identityKey: receiverKeyBundle.identityKey,
-        signedPreKey: receiverKeyBundle.signedPreKey,
-        signedPreKeySignature: receiverKeyBundle.signedPreKeySignature,
-        preKey: receiverKeyBundle.oneTimePreKeys[0], // Using the first one-time pre-key
-    });
-
-    // Create a session cipher
-    const sessionCipher = new signal.SessionCipher(store, receiverAddress);
-
-    // Encrypt the message
-    const ciphertext = await sessionCipher.encrypt(Buffer.from(plaintext, 'utf-8'));
-    return ciphertext;
-  }
-  async function decryptMessage(senderAddress, ciphertext) {
-    // Create a session cipher
-    const sessionCipher = new signal.SessionCipher(store, senderAddress);
-
-    // Decrypt the message
-    const plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary');
-    return plaintext.toString('utf-8');
-  }
-  // const registerKeys = async () => {
-  //   try {
-  //     if (!provider || !signer || !contract) {
-  //       setStatus("Provider, signer, or contract not initialized");
-  //       return;
-  //     }
-
-  //     // Generate keys using @privacyresearch/libsignal-protocol-typescript
-  //     const identityKeyPair = await KeyHelper.generateIdentityKeyPair();
-  //     const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, 1);
-  //     const oneTimePreKeys = await KeyHelper.generatePreKeys(0, 10);
-
-  //     const identityKey = '0x' + Buffer.from(identityKeyPair.pubKey).toString('hex');
-  //     const signedPreKeyPublic = '0x' + Buffer.from(signedPreKey.keyPair.pubKey).toString('hex');
-  //     const signedPreKeySignature = '0x' + Buffer.from(signedPreKey.signature).toString('hex');
-  //     const oneTimePreKeysPublic = oneTimePreKeys.map(key => '0x' + Buffer.from(key.pubKey).toString('hex'));
-
-  //     console.log("Registering keys with the following data:", {
-  //       identityKey,
-  //       signedPreKeyPublic,
-  //       signedPreKeySignature,
-  //       oneTimePreKeysPublic
-  //     });
-
-  //     const tx = await contract.registerKeys(
-  //       identityKey,
-  //       signedPreKeyPublic,
-  //       signedPreKeySignature,
-  //       oneTimePreKeysPublic
-  //     );
-
-  //     await tx.wait();
-  //     setStatus('Keys registered successfully');
-  //   } catch (error) {
-  //     console.error("Error registering keys:", error);
-  //     setStatus('Error registering keys');
-  //   }
-  // };
-  //CREATE ACCOUNT
-  // const createAccount = async (event) => {
-  //   event.preventDefault();
-  //   console.log(name, account);
-  //   try {
-  //     if (!name || !account)
-  //       return setError("Name And Account Address, cannot be empty");
-
-  //     const contract = await connectingWithContract();
-  //     console.log(contract);
-  //     const getCreatedUser = await contract.createAccount(name);
-
-  //     setLoading(true);
-  //     await getCreatedUser.wait();
-  //     setLoading(false);
-  //     window.location.reload();
-  //   } catch (error) {
-  //     setError("Error while creating your account Pleas reload browser");
-  //   }
-  // };
-
-
 
   //ADD YOUR FRIENDS
   const addFriends = async ({ name, userAddress }) => {
@@ -302,21 +201,30 @@ export const ChatAppProvider = ({ children }) => {
   };
 
   //SEND MESSAGE TO YOUR FRIEND
-  const sendMessage = async ({ msg, address }) => {
+  const sendMessage = async ({ msg, address,publicKey}) => {
     try {
       if (!msg || !address) return setError("Please Type your Message");
-
+      alert(msg);
       const contract = await connectingWithContract();
-      var publicKeyBuffer = Buffer.from(publicKey, 'hex');
-      var encryptedRaw = Utils.encrypt(msg,Utils.computeSecret(publicKeyBuffer));
-      var encryptedMessage = '0x' + encryptedRaw.toString('hex');
-      const addMessage = await contract.sendMessage(address, encryptedMessage,Utils.getEncryptAlgorithmInHex());
+      const friendPublicKeyHex = await contract.getPublicKey(address);
+      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2),'hex'); // Loại bỏ '0x' prefix
+      // Tính toán khóa bí mật chung
+      const alice = crypto.createECDH('secp256k1');
+      const pp = await contract.getPrivateKey(account);
+      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+      alert(aliceSecret);
+      const encryptedMessage = encrypt(msg,aliceSecret);
+      //const hmacdigest = createHMAC(msg,aliceSecret)
+      alert(encryptedMessage);
+      const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv);
       setLoading(true);
       await addMessage.wait();
       setLoading(false);
       window.location.reload();
     } catch (error) {
       setError("Please reload and try again");
+      alert(error)
     }
   };
 

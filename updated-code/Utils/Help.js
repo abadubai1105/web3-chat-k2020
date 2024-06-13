@@ -2,54 +2,38 @@
 
 //import Wallet from 'ethereumjs-wallet';
 import crypto from 'crypto';
-var algorithm = 'aes-256-ctr';
 
-module.exports.getEncryptAlgorithm = () => {
-    return algorithm;
 
+exports.encrypt= (text, secret) => {
+    const iv = crypto.randomBytes(16);
+    alert(iv);
+    const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(secret, 'hex'), iv);
+    alert(cipher);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    alert(encrypted);
+    return {
+        iv: iv.toString('hex'),
+        content: encrypted
+    };
 }
 
-module.exports.hexStringToAscii = (hexString) => {
-    if(hexString.startsWith('0x')) {
-        hexString = hexString.substr(2);
-    }
-    return Buffer.from(hexString, 'hex').toString('ascii').replace(/\0/g, '');
-}
 
-module.exports.getEncryptAlgorithmInHex = () => {
-    return '0x' + Buffer.from(algorithm,'ascii').toString('hex');
-}
-
-module.exports.privateToPublic = (privateKey) => {
-    var account = crypto.createECDH('secp256k1');
-    account.setPrivateKey(privateKey);
-    return account.getPublicKey();
-}
-
-module.exports.computeSecret = (publicKeyBuffer) => {
-    var a = crypto.createECDH('secp256k1');
-    a.generateKeys();
-    a.setPrivateKey(this.getPrivateKeyBuffer());
-    return a.computeSecret(publicKeyBuffer);
-}
-
-exports.encrypt = (msg,secret) => {
-    var cipher = crypto. createCipheriv(algorithm, secret);
-    var crypted = cipher.update(msg, 'utf8', 'hex');
-    crypted += cipher.final('hex');
-    return crypted;
-}
-
-exports.decrypt = (msg,secret) => {
-    var decipher = crypto.createDecipheriv(algorithm, secret);
-    var dec = decipher.update(msg, 'hex', 'utf8');
-    dec += decipher.final('utf8');
-    return dec;
+exports.decrypt = (msg,secret,iv) => {
+    const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(secret, 'hex'), Buffer.from(iv, 'hex'));
+    let decrypted = decipher.update(msg, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
 
 }
-// computeSecret = (publicKeyBuffer) => {
-//     var a = crypto.createECDH('secp256k1');
-//     a.generateKeys();
-//     a.setPrivateKey(this.getPrivateKeyBuffer());
-//     return a.computeSecret(publicKeyBuffer);
-// }
+exports.createHMAC = (text, secret) => {
+    const hmac = crypto.createHmac('sha256', Buffer.from(secret, 'hex'));
+    hmac.update(message);
+    return hmac.digest('hex');
+}
+exports.verifyHMAC = (message, hmacDigest, secret) => {
+    const hmac = crypto.createHmac('sha256', Buffer.from(secret, 'hex'));
+    hmac.update(message);
+    const calculatedDigest = hmac.digest('hex');
+    return calculatedDigest === hmacDigest;
+}
