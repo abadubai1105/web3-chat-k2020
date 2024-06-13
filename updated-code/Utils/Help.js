@@ -18,7 +18,6 @@ exports.encrypt= (text, secret) => {
     };
 }
 
-
 exports.decrypt = (msg,secret,iv) => {
     const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(secret, 'hex'), Buffer.from(iv, 'hex'));
     let decrypted = decipher.update(msg, 'hex', 'utf8');
