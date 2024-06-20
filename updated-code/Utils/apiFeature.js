@@ -1,3 +1,4 @@
+// 
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
@@ -32,6 +33,7 @@ export const connectWallet = async () => {
       method: "eth_requestAccounts",
     });
     const firstAccount = accounts[0];
+    //alert(firstAccount);
     return firstAccount;
   } catch (error) {
     console.log(error);
@@ -43,6 +45,7 @@ const fetchContract = (signerOrProvider) =>
 
 export const connectingWithContract = async () => {
   try {
+    
     const web3modal = new Web3Modal();
     const connection = await web3modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
@@ -51,6 +54,7 @@ export const connectingWithContract = async () => {
     return contract;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
