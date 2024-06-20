@@ -97,7 +97,6 @@ export const ChatAppProvider = ({ children }) => {
       const alice = crypto.createECDH('secp256k1');
       alice.generateKeys();
       const alicePublicKey = '0x'+ alice.getPublicKey('hex');
-      alert(alicePublicKey);
       const alicePrivateKey = '0x'+ alice.getPrivateKey('hex');
       const getCreatedUser = await contract.registerUser(userAddress, name,alicePublicKey,alicePrivateKey);
       setLoading(true);
@@ -159,7 +158,6 @@ export const ChatAppProvider = ({ children }) => {
       alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
       const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
       const decryptedMsg = decryptMessages(read,aliceSecret);
-      alert("decrypt",decryptedMsg);
       setFriendMsg(decryptedMsg);
       }
     } catch (error) {
@@ -203,7 +201,6 @@ export const ChatAppProvider = ({ children }) => {
   const sendMessage = async ({ msg, address,publicKey}) => {
     try {
       if (!msg || !address) return setError("Please Type your Message");
-      alert(msg);
       const contract = await connectingWithContract();
       const friendPublicKeyHex = await contract.getPublicKey(address);
       const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2),'hex'); // Loại bỏ '0x' prefix
@@ -212,10 +209,8 @@ export const ChatAppProvider = ({ children }) => {
       const pp = await contract.getPrivateKey(account);
       alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
       const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
-      alert(aliceSecret);
       const encryptedMessage = encrypt(msg,aliceSecret);
       //const hmacdigest = createHMAC(msg,aliceSecret)
-      alert(encryptedMessage);
       const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv);
       setLoading(true);
       await addMessage.wait();
