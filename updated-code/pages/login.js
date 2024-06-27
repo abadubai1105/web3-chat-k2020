@@ -5,20 +5,12 @@ import Link from "next/link";
 import Style from "../styles/login.module.css";
 import images from "../assets";
 import { ChatAppContect } from "../Context/ChatAppContext";
-import { Loader, Model, Register } from "../Components/index";
+import { Loader, Model } from "../Components/index";
 
 const Login = () => {
   const { loginUser, registerUser, loading, account, userName, error, connectWallet } = useContext(ChatAppContect);
   const [openModel, setOpenModel] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
-
-  const handleLogin = () => {
-    loginUser(email, password);
-  };
-
-  const handleRegister = () => {
-    registerUser(email, password);
-  };
 
   const openUser = () => {
     setOpenModel(true);

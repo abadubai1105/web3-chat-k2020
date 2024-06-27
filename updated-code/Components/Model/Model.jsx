@@ -75,7 +75,6 @@ const Model = ({
                 </button>
                 <p>Do not have account? <Link href='/UserRegister' onClick={() => openBox(false)}>Register</Link></p>
               </div>
-
             </div>
           )}
         </div>
