@@ -63,9 +63,9 @@ export const converTime = (time) => {
 
   const realTime =
     newTime.getHours() +
-    "/" +
+    ":" +
     newTime.getMinutes() +
-    "/" +
+    ":" +
     newTime.getSeconds() +
     "  Date:" +
     newTime.getDate() +

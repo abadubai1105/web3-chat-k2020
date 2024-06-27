@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import 'bootstrap/dist/css/bootstrap.css';
 
 //INTERNAL IMPORT
 import Style from "./Card.module.css";

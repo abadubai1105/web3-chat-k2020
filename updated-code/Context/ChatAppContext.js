@@ -34,39 +34,105 @@ export const ChatAppProvider = ({ children }) => {
   const router = useRouter();
 
   //FETCH DATA TIME OF PAGE LOAD
+  // const fetchData = async () => {
+  //   try {
+  //     //GET CONTRACT
+  //     const contract = await connectingWithContract();
+  //     //GET ACCOUNT
+  //     const connectAccount = await connectWallet();
+  //     setAccount(connectAccount);
+  //     //GET USER NAME
+  //     const userName = await contract.getUsername(connectAccount);
+  //     setUserName(userName);
+  //     //GET MY FRIEND LIST
+  //     const friendLists = await contract.getMyFriendList();
+  //     setFriendLists(friendLists);
+  //     //GET WAIT FRIEND LIST
+  //     const waitFriendLists = await contract.getMyWFriendList();
+  //     setWaitFriendLists(waitFriendLists);
+  //     //GET ADD FRIEND LIST
+  //     const addFriendLists = await contract.getMyAFriendList();
+  //     setAddFriendLists(addFriendLists);
+  //     //GET ALL APP USER LIST
+  //     const userList = await contract.getAllAppUser();
+  //     setUserLists(userList);
+  //     // IS SET USER LOGGED IN
+  //     const isUserLoggedIn = await contract.checkIsUserLogged();
+  //   } catch (error) {
+  //     // setError("Please Install And Connect Your Wallet");
+  //     console.log(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
   const fetchData = async () => {
     try {
+      if(isUserLoggedIn === false){
+        router.push("/login");
+      }
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
       var connectAccount= await connectWallet();
+      const updateLogin = await contract.checkIsUserLogged(connectAccount);
       setAccount(connectAccount);
-      //GET USER NAME
-      const userName = await contract.getUsername(connectAccount);
-      setUserName(userName);
-      //GET MY FRIEND LIST
-      const friendLists = await contract.getMyFriendList();
-      setFriendLists(friendLists);
-      //GET WAIT FRIEND LIST
-      const waitFriendLists = await contract.getMyWFriendList();
-      setWaitFriendLists(waitFriendLists);
-      //GET ADD FRIEND LIST
-      const addFriendLists = await contract.getMyAFriendList();
-      setAddFriendLists(addFriendLists);
-      //GET ALL APP USER LIST
-      const userList = await contract.getAllAppUser();
-      console.log(userList);
-      setUserLists(userList);
+      setIsUserLoggedIn(updateLogin);
+      if (updateLogin) {
+        setIsUserLoggedIn(true);
+      }
+      if(isUserLoggedIn === true) {
+        //alert(isUserLoggedIn);
+        //GET USER NAME
+        const userName = await contract.getUsername(connectAccount);
+        setUserName(userName);
+        //alert(userName);
+        //GET MY FRIEND LIST
+        const friendLists = await contract.getMyFriendList();
+        setFriendLists(friendLists);
+        //GET WAIT FRIEND LIST
+        const waitFriendLists = await contract.getMyWFriendList();
+        setWaitFriendLists(waitFriendLists);
+        //GET ADD FRIEND LIST
+        const addFriendLists = await contract.getMyAFriendList();
+        setAddFriendLists(addFriendLists);
+        
+        //GET ALL APP USER LIST
+        const userList = await contract.getAllAppUser();
+        setUserLists(userList);
+        router.push("/alluser");
+      } 
       // IS SET USER LOGGED IN
-      const isUserLoggedIn = await contract.checkIsUserLogged();
+      //const isUserLoggedIn = await contract.checkIsUserLogged();
     } catch (error) {
       // setError("Please Install And Connect Your Wallet");
       console.log(error);
     }
   };
+  
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isUserLoggedIn])
+  // const checkUserLogin = async () => {
+  //   try {
+  //     const contract = await connectingWithContract();
+  //     const isUserLoggedIn = await contract.checkIsUserLogged();
+  //     setIsUserLoggedIn(isUserLoggedIn);
+  //     if(isUserLoggedIn === true){
+  //       fetchData();
+  //     }
+  //     else{
+  //       router.reload();
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  
+  // }
+  // useEffect(() => {
+  //   checkUserLogin();
+  // }, []);
+    //REGISTER USER
 
 
   const decryptMessages = (messages,secretKey) => {
@@ -133,22 +199,53 @@ export const ChatAppProvider = ({ children }) => {
       } else {
         alert("User LoggedIn failed");
       }
-      setLoading(false);
-      window.location.reload();
-      //Router.push("/");
-    }
-    catch (error) {
-      console.log("Currently You Have no Message");
-      alert(error);
-    }
-  };
+      catch (error) {
+        console.log("Cannot login");
+        alert(error);
+      }
+    };
+  
+    // Logout user
+    const logOutUser = async () => {
+      try {
+        // Ensure you are connected to the contract
+        const contract = await connectingWithContract();
+        if (!account) {
+          throw new Error("No account connected");
+        }
+  
+        // Interact with the smart contract to log out
+        const tx = await contract.logoutUser(account);
+        await tx.wait();
+  
+        // Clear local state and localStorage
+        setAccount("");
+        setUserName("");
+        setFriendLists([]);
+        setAddFriendLists([]);
+        setWaitFriendLists([]);
+        setFriendMsg([]);
+        setUserLists([]);
+        setCurrentUserName("");
+        setCurrentUserAddress("");
+        setIsUserLoggedIn(false);
+        localStorage.removeItem("accountAddress");
+  
+        // Redirect to the login page
+        router.push("/login");
+      } catch (error) {
+        console.error("Failed to log out from the contract:", error);
+        setError("Failed to log out. Please try again.");
+      }
+    };
 
-  //READ MESSAGE
-  const readMessage = async (friendAddress) => {
-    try {
-      const contract = await connectingWithContract();
-      const read = await contract.readMessage(friendAddress);
-      if (read.length === 0) {
+    //READ MESSAGE
+  
+    const readMessage = async (friendAddress) => {
+      try {
+        const contract = await connectingWithContract();
+        const read = await contract.readMessage(friendAddress);
+
         setFriendMsg(read);
       } else {
       const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
@@ -245,6 +342,7 @@ export const ChatAppProvider = ({ children }) => {
         connectingWithContract,
         setIsUserLoggedIn,
         loginUser,
+        logOutUser,
         setUserName,
         isUserLoggedIn,
         account,
