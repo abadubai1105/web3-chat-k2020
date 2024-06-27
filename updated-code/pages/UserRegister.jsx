@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -76,9 +75,8 @@ const Register = ({
                   {""}
                   <Image src={images.close} alt="send" width={30} height={30} />
                   {""}
-                  Cancle
+                  Cancel
                 </button>
-                <p>Chưa có tài khoản? <Link href='/UserRegister' onClick={() => openBox(false)}>Đăng Ký</Link></p>
               </div>
             </div>
           )}
