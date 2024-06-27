@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {ethers }  from "ethers";
-
+const crypto = require('crypto');
+//const KeyHelper = signal.KeyHelper;
 //INTERNAL IMPORT
 import {
   CheckIfWalletConnected,
   connectWallet,
   connectingWithContract,
 } from "../Utils/apiFeature";
+
+import {encrypt,decrypt,computeSecret,createHMAC} from "../Utils/Help";
 
 export const ChatAppContect = React.createContext();
 
@@ -23,6 +26,7 @@ export const ChatAppProvider = ({ children }) => {
   const [userLists, setUserLists] = useState([]);
   const [error, setError] = useState("");
   const [isUserLoggedIn,setIsUserLoggedIn] = useState("");
+
   //CHAT USER DATA
   const [currentUserName, setCurrentUserName] = useState("");
   const [currentUserAddress, setCurrentUserAddress] = useState("");
@@ -109,7 +113,6 @@ export const ChatAppProvider = ({ children }) => {
   useEffect(() => {
     fetchData();
   }, [isUserLoggedIn])
-
   // const checkUserLogin = async () => {
   //   try {
   //     const contract = await connectingWithContract();
@@ -131,55 +134,70 @@ export const ChatAppProvider = ({ children }) => {
   // }, []);
     //REGISTER USER
 
-    const createAccount = async ({name,userAddress}) => {
-      console.log(name, account);
-      try {
-        if (!name){
-          return setError("Name And Account Address, cannot be empty");
-        }
-  
-        const contract = await connectingWithContract();
-  
-        console.log(contract);
-  
-        const getCreatedUser = await contract.registerUser(userAddress, name);
-  
-        setLoading(true);
-  
-        await getCreatedUser.wait().then((res) => {
-          alert("User Registered successfully")});
-        setLoading(false);
-        window.location.reload();
-  
-      } catch (error) {
-        setError("Error while creating your account Pleas reload browser");
-        alert(error);
+
+  const decryptMessages = (messages,secretKey) => {
+    return messages.map((msg) => {
+      const decryptedMsg = decrypt(msg.msg,secretKey,msg.iv);
+      //const isValid = verifyHMAC(msg.msg,msg.hmac,secretKey);
+      // if (isValid) {
+      //   console.log('Decrypted Message:', decryptedMessage);
+      //   //setFriendMsg(decryptedMessage);
+      // } else {
+      //   console.log('HMAC verification failed');
+      //   //return;
+      // }
+      return { ...msg, msg: decryptedMsg };
+    });
+  };
+  //REGISTER USER
+  const createAccount = async ({name,userAddress}) => {
+    //event.preventDefault();
+    console.log(name, account);
+    try {
+      if (!name){
+        return setError("Name And Account Address, cannot be empty");
       }
-  
+      const contract = await connectingWithContract();
+      console.log(contract);
+      
+      const alice = crypto.createECDH('secp256k1');
+      alice.generateKeys();
+      const alicePublicKey = '0x'+ alice.getPublicKey('hex');
+      const alicePrivateKey = '0x'+ alice.getPrivateKey('hex');
+      const getCreatedUser = await contract.registerUser(userAddress, name,alicePublicKey,alicePrivateKey);
+      setLoading(true);
+      await getCreatedUser.wait().then((res) => {
+        alert("User Registered successfully")});
+      setLoading(false);
+      window.location.reload();
+    } catch (error) {
+      setError("Error while creating your account Pleas reload browser");
+      alert(error);
     }
-  
-    const loginUser = async ({name,userAddress}) => {
-      console.log(name, account);
-      try{
-        if (!name){
-          return setError("Name And Account Address, cannot be empty");
-        }
+  }
 
-        console.log("Logging In User");
-        const contract = await connectingWithContract();
-        console.log(contract);
 
-        const tx = await contract.loginUser(userAddress,name);
-
-        setLoading(true);
-        const rc = await tx.wait();
-        const event = rc.events.find((event) => event.event === "LoginUser");
-        const [isUserLoggedIn] = await event.args;
-
-        console.log(isUserLoggedIn);
-
+  const loginUser = async ({name,userAddress}) => {
+    console.log(name, account);
+    try{
+      if (!name){
+        return setError("Name And Account Address, cannot be empty");
+      }
+      console.log("Logging In User");
+      const contract = await connectingWithContract();
+      console.log(contract);
+      const tx = await contract.loginUser(userAddress,name);
+      setLoading(true);
+      const rc = await tx.wait();
+      const event = rc.events.find((event) => event.event === "LoginUser");
+      const [isUserLoggedIn] = await event.args;
+      if (isUserLoggedIn) {
+        console.log("User LoggedIn successfully");
         setLoading(false);
         window.location.reload();
+        //Router.push("/ChatHome");
+      } else {
+        alert("User LoggedIn failed");
       }
       catch (error) {
         console.log("Cannot login");
@@ -227,11 +245,22 @@ export const ChatAppProvider = ({ children }) => {
       try {
         const contract = await connectingWithContract();
         const read = await contract.readMessage(friendAddress);
+
         setFriendMsg(read);
-      } catch (error) {
-        console.log("Currently You Have no Message");
+      } else {
+      const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
+      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2), 'hex');
+      const alice = crypto.createECDH('secp256k1');
+      const pp = await contract.getPrivateKey(account);
+      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+      const decryptedMsg = decryptMessages(read,aliceSecret);
+      setFriendMsg(decryptedMsg);
       }
-    };
+    } catch (error) {
+      console.log("Currently You Have no Message");
+    }
+  };
 
   //ADD YOUR FRIENDS
   const addFriends = async ({ name, userAddress }) => {
@@ -266,18 +295,27 @@ export const ChatAppProvider = ({ children }) => {
   };
 
   //SEND MESSAGE TO YOUR FRIEND
-  const sendMessage = async ({ msg, address }) => {
+  const sendMessage = async ({ msg, address,publicKey}) => {
     try {
       if (!msg || !address) return setError("Please Type your Message");
-
       const contract = await connectingWithContract();
-      const addMessage = await contract.sendMessage(address, msg);
+      const friendPublicKeyHex = await contract.getPublicKey(address);
+      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2),'hex'); // Loại bỏ '0x' prefix
+      // Tính toán khóa bí mật chung
+      const alice = crypto.createECDH('secp256k1');
+      const pp = await contract.getPrivateKey(account);
+      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+      const encryptedMessage = encrypt(msg,aliceSecret);
+      //const hmacdigest = createHMAC(msg,aliceSecret)
+      const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv);
       setLoading(true);
       await addMessage.wait();
       setLoading(false);
       window.location.reload();
     } catch (error) {
       setError("Please reload and try again");
+      alert(error)
     }
   };
 
@@ -288,6 +326,8 @@ export const ChatAppProvider = ({ children }) => {
     setCurrentUserName(userName);
     setCurrentUserAddress(userAddress);
   };
+
+  
   return (
     <ChatAppContect.Provider
       value={{
