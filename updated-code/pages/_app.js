@@ -9,6 +9,7 @@ import { useContext, useEffect, useState } from "react";
 const MyApp = ({ Component, pageProps }) => {
   const router = useRouter();
   const isUserLoggedIn = useState(ChatAppContect);
+  const loading = useContext(ChatAppContect);
 
   useEffect(() => {
     if (!isUserLoggedIn && router.pathname !== "/login") {
@@ -18,8 +19,14 @@ const MyApp = ({ Component, pageProps }) => {
 
   return (
     <ChatAppProvider>
-      {router.pathname !== "/login" && isUserLoggedIn && <NavBar />}
-      <Component {...pageProps} />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {isUserLoggedIn && router.pathname !== "/login" && router.pathname !== "/UserRegister" && <NavBar />}
+          <Component {...pageProps} />
+        </>
+      )}
     </ChatAppProvider>
   );
 };

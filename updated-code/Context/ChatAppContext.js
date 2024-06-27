@@ -26,6 +26,7 @@ export const ChatAppProvider = ({ children }) => {
   const [userLists, setUserLists] = useState([]);
   const [error, setError] = useState("");
   const [isUserLoggedIn,setIsUserLoggedIn] = useState("");
+  const [isFriends, setIsFriends] = useState(false);
 
   //CHAT USER DATA
   const [currentUserName, setCurrentUserName] = useState("");
@@ -68,9 +69,7 @@ export const ChatAppProvider = ({ children }) => {
   // }, []);
   const fetchData = async () => {
     try {
-      if(isUserLoggedIn === false){
-        router.push("/login");
-      }
+      
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
@@ -78,6 +77,9 @@ export const ChatAppProvider = ({ children }) => {
       const updateLogin = await contract.checkIsUserLogged(connectAccount);
       setAccount(connectAccount);
       setIsUserLoggedIn(updateLogin);
+      if(isUserLoggedIn === false){
+        router.push("/login");
+      }
       if (updateLogin) {
         setIsUserLoggedIn(true);
       }
@@ -199,6 +201,7 @@ export const ChatAppProvider = ({ children }) => {
       } else {
         alert("User LoggedIn failed");
       }
+    }
       catch (error) {
         console.log("Cannot login");
         alert(error);
@@ -246,18 +249,20 @@ export const ChatAppProvider = ({ children }) => {
         const contract = await connectingWithContract();
         const read = await contract.readMessage(friendAddress);
 
-        setFriendMsg(read);
-      } else {
-      const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
-      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2), 'hex');
-      const alice = crypto.createECDH('secp256k1');
-      const pp = await contract.getPrivateKey(account);
-      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
-      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
-      const decryptedMsg = decryptMessages(read,aliceSecret);
-      setFriendMsg(decryptedMsg);
+        if (read.length === 0) {
+          setFriendMsg(read);
+        } else {
+        const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
+        const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2), 'hex');
+        const alice = crypto.createECDH('secp256k1');
+        const pp = await contract.getPrivateKey(account);
+        alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+        const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+        const decryptedMsg = decryptMessages(read,aliceSecret);
+        setFriendMsg(decryptedMsg);
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.log("Currently You Have no Message");
     }
   };
@@ -287,6 +292,7 @@ export const ChatAppProvider = ({ children }) => {
       setLoading(true);
       await addMyFriend.wait();
       setLoading(false);
+      setIsFriends(true);
       router.push("/");
       window.location.reload();
     } catch (error) {
@@ -356,7 +362,6 @@ export const ChatAppProvider = ({ children }) => {
         error,
         currentUserName,
         currentUserAddress,
-        
       }}
     >
       {children}

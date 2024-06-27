@@ -4,6 +4,7 @@
     background-color: rgba(0,0,0,0.25);
     border-radius: .5rem;
     overflow-y: scroll;
+    text-decoration: none;
 }
 
 .Chat_box{
@@ -58,6 +59,7 @@
 .Chat_user_info_box h4,
 .Chat_user_info_box p{
     line-height: 0;
+    text-decoration: none;
 }
 
 @media only screen and (max-width: 35em) {

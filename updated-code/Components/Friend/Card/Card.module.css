@@ -8,6 +8,7 @@
     padding: 1rem 0;
     border-bottom: 1px solid #f1820342;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .Card_box_right{
