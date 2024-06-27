@@ -30,6 +30,7 @@
     align-items: center;
     gap: 1rem;
     font-size: 1rem;
+
 }
 
 .Chat_box_send_img{
@@ -52,11 +53,10 @@
     display: flex;
     align-items: center;
     gap: 2rem;
-    line-height: 1;
+    line-height: 2;
 }
 
-.Chat_user_info_box h4,
-.Chat_user_info_box p{
+.Chat_user_info_box h4{
     line-height: 0;
 }
 
