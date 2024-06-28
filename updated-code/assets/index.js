@@ -29,6 +29,8 @@ import image7 from "./img7.gif";
 import image8 from "./img8.gif";
 import image9 from "./img9.gif";
 import image10 from "./img10.gif";
+import eye_open from "./eye_open.png";
+import eye_close from "./eye_close.png";
 
 export default {
   logo1,
@@ -62,4 +64,6 @@ export default {
   image8,
   image9,
   image10,
+  eye_close,
+  eye_open,
 };

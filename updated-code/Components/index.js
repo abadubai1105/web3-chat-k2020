@@ -8,5 +8,6 @@ import FriendRequestCard from "./UserCard/FriendRequestCard";
 import Friend from "./Friend/Friend";
 import Register from "../pages/UserRegister";
 import Login from "../pages/login";
+import Mnem from "./Mnem/Mnem";
 
-export { NavBar, Filter, Error, Loader, Model, UserCard, FriendRequestCard, Friend, Register, Login };
+export { NavBar, Filter, Error, Loader, Model, UserCard, FriendRequestCard, Friend, Register, Login, Mnem };
