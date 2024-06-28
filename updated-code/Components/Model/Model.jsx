@@ -84,7 +84,7 @@ const Model = ({
               </div>
               <div className={Style.Model_box_right_name_info}>
                 <Image src={images.smile} alt="password" width={30} height={30} />
-                <div className={Style.passwordInputWrapper}>
+                <div className={Style.password_input_wrapper}>
                   <input
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter password"
@@ -92,7 +92,7 @@ const Model = ({
                   />
                   <button
                     type="button"
-                    className={Style.togglePassword}
+                    className={Style.toggle_password}
                     onClick={togglePasswordVisibility}
                   >
                     {passwordVisible ? <Image src={images.eye_close} alt="hide password" width={30} height={30}/> 

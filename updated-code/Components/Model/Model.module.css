@@ -68,22 +68,22 @@
     cursor: pointer;
 }
 
-.passwordInputWrapper {
+.password_input_wrapper {
     position: relative;
     display: flex;
     align-items: center;
   }
   
-  .passwordInputWrapper input {
+  .password_input_wrapper input {
     flex-grow: 1;
   }
 
-  .passwordInputWrapper button{
+  .password_input_wrapper button{
     display:flex;
     position: inherit;
   }
   
-  .togglePassword {
+  .toggle_password {
     background: none;
     border: none;
     cursor: pointer;
