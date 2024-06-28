@@ -68,6 +68,29 @@
     cursor: pointer;
 }
 
+.passwordInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .passwordInputWrapper input {
+    flex-grow: 1;
+  }
+
+  .passwordInputWrapper button{
+    display:flex;
+    position: inherit;
+  }
+  
+  .togglePassword {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+
 @media only screen and (max-width: 35em) {
     .Model{
         width: 95%;
