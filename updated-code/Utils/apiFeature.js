@@ -58,36 +58,36 @@ export const connectingWithContract = async () => {
   }
 };
 
+export const converTime = (time) => {
+  const newTime = new Date(time.toNumber()*1000);
+
+  const realTime =
+    newTime.getHours() +
+    ":" +
+    newTime.getMinutes() +
+    ":" +
+    newTime.getSeconds() +
+    "  Date:" +
+    newTime.getDate() +
+    "/" +
+    (newTime.getMonth() + 1) +
+    "/" +
+    newTime.getFullYear();
+  console.log(time)
+  return realTime;
+};
+
 // export const converTime = (time) => {
 //   const newTime = new Date(time.toNumber());
 
-//   const realTime =
-//     newTime.getHours() +
-//     ":" +
-//     newTime.getMinutes() +
-//     ":" +
-//     newTime.getSeconds() +
-//     "  Date:" +
-//     newTime.getDate() +
-//     "/" +
-//     (newTime.getMonth() + 1) +
-//     "/" +
-//     newTime.getFullYear();
+//   const realTime = newTime.toLocaleString('vi-VN', {
+//     hour: '2-digit',
+//     minute: '2-digit',
+//     second: '2-digit',
+//     day: '2-digit',
+//     month: '2-digit',
+//     year: 'numeric'
+//   });
 
 //   return realTime;
 // };
-
-export const converTime = () => {
-  const newTime = new Date();
-
-  const realTime = newTime.toLocaleString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-
-  return realTime;
-};
