@@ -25,9 +25,9 @@ const Register = ({
   const [mnemInput, setMnemInput] = useState("");
   const [mnemInputError, setMnemInputError] = useState("");
   const router = useRouter();
-
   const { loading, createAccount } = useContext(ChatAppContect);
 
+  // CHECK VALID PASSWORD
   const validatePassword = (password) => {
     const hasNumber = /\d/;
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
@@ -38,24 +38,29 @@ const Register = ({
     }
   };
 
+  // GET INPUT PASSWORD
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
     validatePassword(newPassword);
   };
 
+  // GET MNEMONIC 
   const handleMnemInputChange = (e) => {
     const input = e.target.value;
     setMnemInput(input);
-    if (input.length < 9 || input.length > 15) {
-      setMnemInputError("Text must be between 9 and 15 characters.");
+    const words = input.trim().split(/\s+/);
+    if (words.length < 12 || words.length > 15) {
+      setMnemInputError("Text must be between 12 and 15 words.");
     } else {
       setMnemInputError("");
     }
   };
 
+  // CHECK VALID MNEMONIC
   const handleSubmit = () => {
-    if (mnemInput.length >= 9 && mnemInput.length <= 15) {
+    const words = mnemInput.trim().split(/\s+/);
+    if (words.length >= 12 && words.length <= 15) {
       setMnemVisible(false);
       createAccount({ name, userAddress, password, extraText: mnemInput });
     }
@@ -68,21 +73,17 @@ const Register = ({
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
-        <div className={Style.Model_box_left}>
-          <Image src={image} alt="buddy" width={100} height={100} />
-        </div>
         <div className={Style.Model_box_right}>
           <h1>
             {title} <span>{head}</span>
           </h1>
           <small>{smallInfo}</small>
-
           {loading == true ? (
             <Loader />
           ) : (
             <div className={Style.container}>
               <h1>REGISTER USER</h1>
-              <div className={Style.inputGroup}>
+              <div className={Style.input_group}>
                 <Image
                   src={images.username}
                   alt="user"
@@ -92,11 +93,11 @@ const Register = ({
                 <input
                   required
                   type="text"
-                  placeholder="your name"
+                  placeholder="Your name"
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              <div className={Style.inputGroup}>
+              <div className={Style.input_group}>
                 <Image src={images.account} alt="user" width={30} height={30} />
                 <input
                   required
@@ -105,9 +106,9 @@ const Register = ({
                   onChange={(e) => setUserAddress(e.target.value)}
                 />
               </div>
-              <div className={Style.inputGroup}>
+              <div className={Style.input_group}>
                 <Image src={images.smile} alt="password" width={30} height={30} />
-                <div className={Style.passwordInputWrapper}>
+                <div className={Style.password_input_wrapper}>
                   <input
                     required
                     type={passwordVisible ? "text" : "password"}
@@ -116,7 +117,7 @@ const Register = ({
                   />
                   <button
                     type="button"
-                    className={Style.togglePassword}
+                    className={Style.toggle_password}
                     onClick={togglePasswordVisibility}
                   >
                     {passwordVisible ? <Image src={images.eye_close} alt="hide password" width={30} height={30}/> 
@@ -125,7 +126,7 @@ const Register = ({
                 </div>
                 {passwordError && <p className={Style.error}>{passwordError}</p>}
               </div>
-              <div className={Style.buttonGroup}>
+              <div className={Style.button_group}>
                 <button
                   onClick={() => setMnemVisible(true)}
                   disabled={passwordError !== ""}

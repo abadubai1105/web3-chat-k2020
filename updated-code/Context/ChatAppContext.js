@@ -152,7 +152,7 @@ export const ChatAppProvider = ({ children }) => {
     });
   };
   //REGISTER USER
-  const createAccount = async ({name,userAddress}) => {
+  const createAccount = async ({name,userAddress,password}) => {
     //event.preventDefault();
     console.log(name, account);
     try {
@@ -179,7 +179,7 @@ export const ChatAppProvider = ({ children }) => {
   }
 
 
-  const loginUser = async ({name,userAddress}) => {
+  const loginUser = async ({name,userAddress, password}) => {
     console.log(name, account);
     try{
       if (!name){
