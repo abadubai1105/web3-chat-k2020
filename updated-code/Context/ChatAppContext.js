@@ -73,7 +73,7 @@ export const ChatAppProvider = ({ children }) => {
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
-      var connectAccount= await connectWallet();
+      const connectAccount = await connectWallet();
       const updateLogin = await contract.checkIsUserLogged(connectAccount);
       setAccount(connectAccount);
       setIsUserLoggedIn(updateLogin);

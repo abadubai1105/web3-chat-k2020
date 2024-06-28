@@ -60,7 +60,7 @@ const Chat = ({
           <div className={Style.Chat_box_left}>
             {friendMsg.map((el, i) => (
               <div>
-                {el.sender == chatData.address ? (
+                {el.sender === chatData.address ? (
                   <div className={Style.Chat_box_left_title}>
                     <Image
                       src={images.accountName}
