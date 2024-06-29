@@ -110,8 +110,8 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
                     )}
                   </button>
                 </div>
-                {passwordError && <p className={Style.error}>{passwordError}</p>}
               </div>
+              {passwordError && (<p className={Style.error}>{passwordError}</p>)}
               <div className={Style.button_group}>
                 <button onClick={() => setMnemVisible(true)} disabled={isSubmitDisabled}>
                   <Image src={images.send} alt="send" width={30} height={30} />
