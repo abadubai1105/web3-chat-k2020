@@ -36,7 +36,6 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   };
 
   const handleMnemInputChange = (e) => {
-    const input = e.target.value;
     const promise = Promise.resolve(input);
     promise.then((words) => {
       const word = words.split(" ");
@@ -47,9 +46,10 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
       }
       return word;
     });
+    
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (mnemonic) => {
     // Check if any required fields are empty or have errors
     if (!name || !userAddress || !password || passwordError || mnemInputError) {
       console.log("Please fill in all required fields correctly.");
@@ -57,7 +57,8 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
     }
 
     setMnemVisible(false);
-    createAccount({ name, userAddress, password, extraText: mnemInput });
+    //console.log("test55",mnemonic)
+    createAccount({ name, userAddress, password, extraText: mnemonic || mnemInput });
   };
 
   const togglePasswordVisibility = () => {

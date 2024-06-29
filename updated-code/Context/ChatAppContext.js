@@ -161,6 +161,7 @@ export const ChatAppProvider = ({ children }) => {
       }
       const contract = await connectingWithContract();
       console.log(contract);
+      console.log("test",password);
       
       const alice = crypto.createECDH('secp256k1');
       alice.generateKeys();
@@ -179,12 +180,13 @@ export const ChatAppProvider = ({ children }) => {
   }
 
 
-  const loginUser = async ({name,userAddress, password}) => {
+  const loginUser = async ({name,userAddress, password, mnem}) => {
     console.log(name, account);
     try{
       if (!name){
         return setError("Name And Account Address, cannot be empty");
       }
+      
       console.log("Logging In User");
       const contract = await connectingWithContract();
       console.log(contract);
