@@ -134,8 +134,8 @@ const Model = ({
                       : <Image src = {images.eye_open} alt="show password" width={30} height={30}/>}
                   </button>
                 </div>
-                {passwordError && <p className={Style.error}>{passwordError}</p>}
               </div>
+              {passwordError && <p className={Style.error}>{passwordError}</p>}
               <div className={Style.Model_box_right_name_btn}>
                 <button
                   onClick={() =>{ functionName({ name, userAddress, password });
