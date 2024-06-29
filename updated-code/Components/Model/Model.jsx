@@ -54,13 +54,16 @@ const Model = ({
 
   const handleMnemInputChange = (e) => {
     const input = e.target.value;
-    const words = input.split(" ");
-    if (words.length < 12 || words.length > 25) {
-      setMnemInputError("Mnemonic must be between 12 and 25 words.");
-    } else {
-      setMnemInputError("");
-    }
-    setMnemInput(input);
+    const promise = Promise.resolve(input);
+    promise.then((words) => {
+      const word = words.split(" ");
+      if (word.length < 12 || word.length > 25) {
+        setMnemInputError("Mnemonic must be between 12 and 25 words.");
+      } else {
+        setMnemInputError("");
+      }
+      return word;
+    });
   };
 
   const handleMnemonicSubmit = () => {
@@ -158,13 +161,15 @@ const Model = ({
       </div>
 
       {mnemonicVisible && (
-        <Mnem
-          handleClose={() => setMnemonicVisible(false)}
-          handleSubmit={handleMnemonicSubmit}
-          mnemInput={mnemInput}
-          handleMnemInputChange={handleMnemInputChange}
-          mnemInputError={mnemInputError}
-        />
+        <div className={Style.overlay}>
+          <Mnem
+            handleClose={() => setMnemonicVisible(false)}
+            handleSubmit={handleMnemonicSubmit}
+            mnemInput={mnemInput}
+            handleMnemInputChange={handleMnemInputChange}
+            mnemInputError={mnemInputError}
+          />
+        </div>
       )}
     </div>
   );
