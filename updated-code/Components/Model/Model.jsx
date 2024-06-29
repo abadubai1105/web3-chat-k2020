@@ -1,11 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 // INTERNAL IMPORT
 import Style from "./Model.module.css";
 import images from "../../assets";
 import { ChatAppContect } from "../../Context/ChatAppContext";
-import { Loader } from "../../Components/index";
+import { Loader, Mnem } from "../../Components/index";
 
 const Model = ({
   openBox,
@@ -22,8 +22,19 @@ const Model = ({
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [mnemonicVisible, setMnemonicVisible] = useState(false);
+  const [mnemInput, setMnemInput] = useState("");
+  const [mnemInputError, setMnemInputError] = useState("");
+  const [selectedWords, setSelectedWords] = useState([]);
 
   const { loading } = useContext(ChatAppContect);
+
+  useEffect(() => {
+    const savedMnemonic = localStorage.getItem("mnemonic");
+    if (!savedMnemonic) {
+      setMnemonicVisible(true);
+    }
+  }, []);
 
   const validatePassword = (password) => {
     const hasNumber = /\d/;
@@ -39,6 +50,26 @@ const Model = ({
     const newPassword = e.target.value;
     setPassword(newPassword);
     validatePassword(newPassword);
+  };
+
+  const handleMnemInputChange = (e) => {
+    const input = e.target.value;
+    const words = input.split(" ");
+    if (words.length < 12 || words.length > 25) {
+      setMnemInputError("Mnemonic must be between 12 and 25 words.");
+    } else {
+      setMnemInputError("");
+    }
+    setMnemInput(input);
+  };
+
+  const handleMnemonicSubmit = () => {
+    const savedMnemonic = localStorage.getItem("mnemonic");
+    if (savedMnemonic && savedMnemonic === mnemInput) {
+      setMnemonicVisible(false);
+    } else {
+      setMnemInputError("Mnemonic does not match.");
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -125,6 +156,16 @@ const Model = ({
           )}
         </div>
       </div>
+
+      {mnemonicVisible && (
+        <Mnem
+          handleClose={() => setMnemonicVisible(false)}
+          handleSubmit={handleMnemonicSubmit}
+          mnemInput={mnemInput}
+          handleMnemInputChange={handleMnemInputChange}
+          mnemInputError={mnemInputError}
+        />
+      )}
     </div>
   );
 };
