@@ -1,21 +1,12 @@
 import React, { useState, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-// INTERNAL IMPORT
 import Style from "../Components/Register/UserRegister.module.css";
 import images from "../assets";
 import { ChatAppContect } from "../Context/ChatAppContext";
 import { Loader, Mnem } from "../Components/index";
 
-const Register = ({
-  openBox,
-  title,
-  address,
-  head,
-  smallInfo,
-  image,
-}) => {
-  // USESTATE
+const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
   const [password, setPassword] = useState("");
@@ -25,9 +16,9 @@ const Register = ({
   const [mnemInput, setMnemInput] = useState("");
   const [mnemInputError, setMnemInputError] = useState("");
   const router = useRouter();
+
   const { loading, createAccount } = useContext(ChatAppContect);
 
-  // CHECK VALID PASSWORD
   const validatePassword = (password) => {
     const hasNumber = /\d/;
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
@@ -38,32 +29,29 @@ const Register = ({
     }
   };
 
-  // GET INPUT PASSWORD
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
     validatePassword(newPassword);
   };
 
-  // GET MNEMONIC 
   const handleMnemInputChange = (e) => {
     const input = e.target.value;
-    setMnemInput(input);
-    const words = input.trim().split(/\s+/);
-    if (words.length < 12 || words.length > 15) {
-      setMnemInputError("Text must be between 12 and 15 words.");
-    } else {
-      setMnemInputError("");
-    }
+    const promise = Promise.resolve(input);
+    promise.then((words) => {
+      const word = words.split(" ");
+      if (word.length < 12 || word.length > 25) {
+        setMnemInputError("Mnemonic must be between 12 and 25 words.");
+      } else {
+        setMnemInputError("");
+      }
+      return word;
+    });
   };
 
-  // CHECK VALID MNEMONIC
   const handleSubmit = () => {
-    const words = mnemInput.trim().split(/\s+/);
-    if (words.length >= 12 && words.length <= 15) {
-      setMnemVisible(false);
-      createAccount({ name, userAddress, password, extraText: mnemInput });
-    }
+    setMnemVisible(false);
+    createAccount({ name, userAddress, password, extraText: mnemInput });
   };
 
   const togglePasswordVisibility = () => {
@@ -73,38 +61,27 @@ const Register = ({
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
+        <div className={Style.Model_box_left}>
+          <Image src={image} alt="buddy" width={100} height={100} />
+        </div>
         <div className={Style.Model_box_right}>
           <h1>
             {title} <span>{head}</span>
           </h1>
           <small>{smallInfo}</small>
-          {loading == true ? (
+
+          {loading ? (
             <Loader />
           ) : (
             <div className={Style.container}>
               <h1>REGISTER USER</h1>
               <div className={Style.input_group}>
-                <Image
-                  src={images.username}
-                  alt="user"
-                  width={30}
-                  height={30}
-                />
-                <input
-                  required
-                  type="text"
-                  placeholder="Your name"
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <Image src={images.username} alt="user" width={30} height={30} />
+                <input required type="text" placeholder="your name" onChange={(e) => setName(e.target.value)} />
               </div>
               <div className={Style.input_group}>
                 <Image src={images.account} alt="user" width={30} height={30} />
-                <input
-                  required
-                  type="text"
-                  placeholder={address || "Enter address.."}
-                  onChange={(e) => setUserAddress(e.target.value)}
-                />
+                <input required type="text" placeholder={address || "Enter address.."} onChange={(e) => setUserAddress(e.target.value)} />
               </div>
               <div className={Style.input_group}>
                 <Image src={images.smile} alt="password" width={30} height={30} />
@@ -120,17 +97,17 @@ const Register = ({
                     className={Style.toggle_password}
                     onClick={togglePasswordVisibility}
                   >
-                    {passwordVisible ? <Image src={images.eye_close} alt="hide password" width={30} height={30}/> 
-                      : <Image src = {images.eye_open} alt="show password" width={30} height={30}/>}
+                    {passwordVisible ? (
+                      <Image src={images.eye_close} alt="hide password" width={30} height={30} />
+                    ) : (
+                      <Image src={images.eye_open} alt="show password" width={30} height={30} />
+                    )}
                   </button>
                 </div>
                 {passwordError && <p className={Style.error}>{passwordError}</p>}
               </div>
               <div className={Style.button_group}>
-                <button
-                  onClick={() => setMnemVisible(true)}
-                  disabled={passwordError !== ""}
-                >
+                <button onClick={() => setMnemVisible(true)} disabled={passwordError !== ""}>
                   <Image src={images.send} alt="send" width={30} height={30} />
                   Submit
                 </button>
