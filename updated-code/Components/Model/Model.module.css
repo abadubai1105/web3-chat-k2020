@@ -95,6 +95,61 @@
     font-size: 12px;
     margin-top: 4px;
   }
+
+  .mnem_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .mnem_model {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .mnem_model_content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mnem_model_content input {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .mnem_model_content button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .mnem_model_content button:hover {
+    background-color: #005bb5;
+  }
+  
+  .mnem_model_content .error {
+    color: red;
+    margin-top: 10px;
+  }
   
 
 @media only screen and (max-width: 35em) {
