@@ -50,6 +50,12 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   };
 
   const handleSubmit = () => {
+    // Check if any required fields are empty or have errors
+    if (!name || !userAddress || !password || passwordError || mnemInputError) {
+      console.log("Please fill in all required fields correctly.");
+      return;
+    }
+
     setMnemVisible(false);
     createAccount({ name, userAddress, password, extraText: mnemInput });
   };
@@ -58,12 +64,12 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
     setPasswordVisible(!passwordVisible);
   };
 
+  // Disable the Submit button if any required fields are empty or have errors
+  const isSubmitDisabled = !name || !userAddress || !password || passwordError || mnemInputError;
+
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
-        <div className={Style.Model_box_left}>
-          <Image src={image} alt="buddy" width={100} height={100} />
-        </div>
         <div className={Style.Model_box_right}>
           <h1>
             {title} <span>{head}</span>
@@ -107,7 +113,7 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
                 {passwordError && <p className={Style.error}>{passwordError}</p>}
               </div>
               <div className={Style.button_group}>
-                <button onClick={() => setMnemVisible(true)} disabled={passwordError !== ""}>
+                <button onClick={() => setMnemVisible(true)} disabled={isSubmitDisabled}>
                   <Image src={images.send} alt="send" width={30} height={30} />
                   Submit
                 </button>

@@ -25,7 +25,7 @@ const Model = ({
   const [mnemonicVisible, setMnemonicVisible] = useState(false);
   const [mnemInput, setMnemInput] = useState("");
   const [mnemInputError, setMnemInputError] = useState("");
-  const [selectedWords, setSelectedWords] = useState([]);
+  const [showMnemonicInput, setShowMnemonicInput] = useState(false);
 
   const { loading } = useContext(ChatAppContect);
 
@@ -52,26 +52,27 @@ const Model = ({
     validatePassword(newPassword);
   };
 
-  const handleMnemInputChange = (e) => {
-    const input = e.target.value;
-    const promise = Promise.resolve(input);
-    promise.then((words) => {
-      const word = words.split(" ");
-      if (word.length < 12 || word.length > 25) {
-        setMnemInputError("Mnemonic must be between 12 and 25 words.");
-      } else {
-        setMnemInputError("");
-      }
-      return word;
-    });
-  };
+  // const handleMnemInputChange = (e) => {
+  //   const input = e.target.value;
+  //   const promise = Promise.resolve(input);
+  //   promise.then((words) => {
+  //     const word = words.split(" ");
+  //     if (word.length < 12 || word.length > 25) {
+  //       setMnemInputError("Mnemonic must be between 12 and 25 words.");
+  //     } else {
+  //       setMnemInputError("");
+  //     }
+  //     return word;
+  //   });
+  // };
 
   const handleMnemonicSubmit = () => {
-    const savedMnemonic = localStorage.getItem("mnemonic");
-    if (savedMnemonic && savedMnemonic === mnemInput) {
-      setMnemonicVisible(false);
+    if (mnemInput.trim() === "") {
+      setMnemInputError("Please enter your mnemonic.");
     } else {
-      setMnemInputError("Mnemonic does not match.");
+      setMnemInputError("");
+      localStorage.setItem("mnemonic", mnemInput.trim()); 
+      setShowMnemonicInput(false);
     }
   };
 
@@ -137,7 +138,8 @@ const Model = ({
               </div>
               <div className={Style.Model_box_right_name_btn}>
                 <button
-                  onClick={() => functionName({ name, userAddress, password })}
+                  onClick={() =>{ functionName({ name, userAddress, password });
+                                  handleMnemonicSubmit();}}
                   disabled={passwordError !== ""}
                 >
                   <Image src={images.send} alt="send" width={30} height={30} />
@@ -160,17 +162,27 @@ const Model = ({
         </div>
       </div>
 
-      {mnemonicVisible && (
+      {showMnemonicInput && (
         <div className={Style.overlay}>
-          <Mnem
-            handleClose={() => setMnemonicVisible(false)}
-            handleSubmit={handleMnemonicSubmit}
-            mnemInput={mnemInput}
-            handleMnemInputChange={handleMnemInputChange}
-            mnemInputError={mnemInputError}
-          />
+          <div className={Style.modal}>
+            <div className={Style.modal_content}>
+              <span className={Style.close} onClick={() => setShowMnemonicInput(false)}>
+                &times;
+              </span>
+              <h2>Enter Your Mnemonic</h2>
+              <input
+                type="text"
+                placeholder="Enter your mnemonic..."
+                value={mnemInput}
+                onChange={(e) => setMnemInput(e.target.value)}
+              />
+              {mnemInputError && <p className={Style.error}>{mnemInputError}</p>}
+              <button onClick={handleMnemonicSubmit}>Submit</button>
+            </div>
+          </div>
         </div>
       )}
+
     </div>
   );
 };
