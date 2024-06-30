@@ -6,6 +6,7 @@ import Style from "./Model.module.css";
 import images from "../../assets";
 import { ChatAppContect } from "../../Context/ChatAppContext";
 import { Loader } from "../../Components/index";
+import {encryptMnemonic} from "../../Utils/Help";
 
 const Model = ({
   openBox,
@@ -30,8 +31,7 @@ const Model = ({
   const { loading } = useContext(ChatAppContect);
 
   useEffect(() => {
-    const savedMnemonic = localStorage.getItem("mnemonic");
-    //console.log("test66",savedMnemonic);
+    const savedMnemonic = localStorage.getItem(address);
     if (savedMnemonic) {
       setMnemonic(savedMnemonic);
     }
@@ -53,13 +53,14 @@ const Model = ({
     validatePassword(newPassword);
   };
 
-  const handleMnemonicSubmit = () => {
+  const handleMnemonicSubmit = async () => {
     if (mnemInput.trim() === "") {
       setMnemInputError("Please enter your mnemonic.");
     } else {
       setMnemInputError("");
-      localStorage.setItem("mnemonic", mnemInput.trim());
-      setMnemonic(mnemInput.trim());
+      const mnemonicEncrypted = await encryptMnemonic(mnemInput.trim(),password,address);
+      localStorage.setItem(address, mnemonicEncrypted);
+      setMnemonic(mnemonicEncrypted);
       setShowMnemonicInput(false);
     }
   };
@@ -70,14 +71,14 @@ const Model = ({
 
   const handleSubmit = () => {
     if (!name || !userAddress || !password || passwordError) {
-      console.log("Please fill in all required fields correctly.");
+      alert("Please fill in all required fields correctly.");
       return;
     }
     if (!mnemonic) {
       setShowMnemonicInput(true);
       return;
     }
-    functionName({ name, userAddress, password, extraText: mnemonic });
+    functionName({ name, userAddress, password});
   };
 
   return (

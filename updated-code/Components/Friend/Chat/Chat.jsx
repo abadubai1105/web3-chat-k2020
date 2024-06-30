@@ -19,7 +19,7 @@ const Chat = ({
   currentUserAddress,
   readUser,
 }) => {
-  // USESTATE
+  //USE STATE
   const [message, setMessage] = useState("");
   const [chatData, setChatData] = useState({
     name: "",
@@ -32,7 +32,6 @@ const Chat = ({
     if (!router.isReady) return;
 
     setChatData(router.query);
-    console.log(router.query);
   }, [router.isReady, router.query]);
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const Chat = ({
         <div className={Style.Chat_box}>
           <div className={Style.Chat_box_left}>
             {friendMsg.map((el, i) => (
-              <div key={i}>
+              <div key = {i}>
                 {el.sender === chatData.address ? (
                   <div className={Style.Chat_box_left_title}>
                     <Image

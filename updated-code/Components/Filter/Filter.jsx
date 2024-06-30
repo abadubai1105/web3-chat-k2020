@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import Image from "next/image";
 import 'bootstrap/dist/css/bootstrap.css';
+
 //INTERNAL IMPORT
 import Style from "./Filter.module.css";
 import images from "../../assets";

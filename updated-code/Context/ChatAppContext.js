@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import {ethers }  from "ethers";
 const crypto = require('crypto');
-//const KeyHelper = signal.KeyHelper;
+const bip39 = require('bip39');
 //INTERNAL IMPORT
 import {
   CheckIfWalletConnected,
@@ -10,7 +9,7 @@ import {
   connectingWithContract,
 } from "../Utils/apiFeature";
 
-import {encrypt,decrypt,computeSecret,createHMAC} from "../Utils/Help";
+import {encrypt,decrypt,createHMAC,mnemonicToPrivateKey,verifyHMAC,encryptMnemonic,decryptMnemonic,scrambleString,unscrambleString} from "../Utils/Help";
 
 export const ChatAppContect = React.createContext();
 
@@ -25,8 +24,9 @@ export const ChatAppProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [userLists, setUserLists] = useState([]);
   const [error, setError] = useState("");
-  const [isUserLoggedIn,setIsUserLoggedIn] = useState("");
-  const [isFriends, setIsFriends] = useState(false);
+  const [isUserLoggedIn,setIsUserLoggedIn] = useState(false);
+  const [isFriends,setIsFriends] = useState(false);
+  const [isHaveMnemonic,setIsHaveMnemonic] = useState(false);
 
   //CHAT USER DATA
   const [currentUserName, setCurrentUserName] = useState("");
@@ -35,60 +35,28 @@ export const ChatAppProvider = ({ children }) => {
   const router = useRouter();
 
   //FETCH DATA TIME OF PAGE LOAD
-  // const fetchData = async () => {
-  //   try {
-  //     //GET CONTRACT
-  //     const contract = await connectingWithContract();
-  //     //GET ACCOUNT
-  //     const connectAccount = await connectWallet();
-  //     setAccount(connectAccount);
-  //     //GET USER NAME
-  //     const userName = await contract.getUsername(connectAccount);
-  //     setUserName(userName);
-  //     //GET MY FRIEND LIST
-  //     const friendLists = await contract.getMyFriendList();
-  //     setFriendLists(friendLists);
-  //     //GET WAIT FRIEND LIST
-  //     const waitFriendLists = await contract.getMyWFriendList();
-  //     setWaitFriendLists(waitFriendLists);
-  //     //GET ADD FRIEND LIST
-  //     const addFriendLists = await contract.getMyAFriendList();
-  //     setAddFriendLists(addFriendLists);
-  //     //GET ALL APP USER LIST
-  //     const userList = await contract.getAllAppUser();
-  //     setUserLists(userList);
-  //     // IS SET USER LOGGED IN
-  //     const isUserLoggedIn = await contract.checkIsUserLogged();
-  //   } catch (error) {
-  //     // setError("Please Install And Connect Your Wallet");
-  //     console.log(error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
   const fetchData = async () => {
     try {
       
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
-      const connectAccount = await connectWallet();
+      var connectAccount= await connectWallet();
       const updateLogin = await contract.checkIsUserLogged(connectAccount);
       setAccount(connectAccount);
-      setIsUserLoggedIn(updateLogin);
-      if(isUserLoggedIn === false){
+      const isHavePassword = await sessionStorage.getItem(connectAccount);
+      if (updateLogin && isHavePassword) {
+        //alert("Đăng nhập thành công");
+        setIsUserLoggedIn(true);
+        router.push("/");
+      } else {
+        // setIsUserLoggedIn(false);
         router.push("/login");
       }
-      if (updateLogin) {
-        setIsUserLoggedIn(true);
-      }
       if(isUserLoggedIn === true) {
-        //alert(isUserLoggedIn);
         //GET USER NAME
         const userName = await contract.getUsername(connectAccount);
         setUserName(userName);
-        //alert(userName);
         //GET MY FRIEND LIST
         const friendLists = await contract.getMyFriendList();
         setFriendLists(friendLists);
@@ -102,73 +70,50 @@ export const ChatAppProvider = ({ children }) => {
         //GET ALL APP USER LIST
         const userList = await contract.getAllAppUser();
         setUserLists(userList);
-        //router.push("/alluser");
       } 
       // IS SET USER LOGGED IN
       //const isUserLoggedIn = await contract.checkIsUserLogged();
     } catch (error) {
-      // setError("Please Install And Connect Your Wallet");
-      console.log(error);
+      setError("Something went wrong",error);
+      
     }
   };
   
   useEffect(() => {
     fetchData();
-  }, [isUserLoggedIn])
-  // const checkUserLogin = async () => {
-  //   try {
-  //     const contract = await connectingWithContract();
-  //     const isUserLoggedIn = await contract.checkIsUserLogged();
-  //     setIsUserLoggedIn(isUserLoggedIn);
-  //     if(isUserLoggedIn === true){
-  //       fetchData();
-  //     }
-  //     else{
-  //       router.reload();
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  
-  // }
-  // useEffect(() => {
-  //   checkUserLogin();
-  // }, []);
-    //REGISTER USER
+  }, [isUserLoggedIn]);
 
 
-  const decryptMessages = (messages,secretKey) => {
-    return messages.map((msg) => {
-      const decryptedMsg = decrypt(msg.msg,secretKey,msg.iv);
-      //const isValid = verifyHMAC(msg.msg,msg.hmac,secretKey);
-      // if (isValid) {
-      //   console.log('Decrypted Message:', decryptedMessage);
-      //   //setFriendMsg(decryptedMessage);
-      // } else {
-      //   console.log('HMAC verification failed');
-      //   //return;
-      // }
-      return { ...msg, msg: decryptedMsg };
-    });
-  };
+  async function decryptMessages(messages, secretKey) {
+    return Promise.all(
+      messages.map(async (msg) => {
+        const decryptedMsg = await decrypt(msg.msg, secretKey, msg.iv);
+        const isValid = await verifyHMAC(msg.msg, msg.hmac, secretKey);
+        if (!isValid) {
+          return { ...msg, msg: decryptedMsg };
+        } else {
+          return { ...msg, msg: 'HMAC verification failed' };
+        }
+      })
+    );
+  }
   //REGISTER USER
-  const createAccount = async ({name,userAddress,password}) => {
+  const createAccount = async ({name,userAddress,password,mnemonic}) => {
     //event.preventDefault();
-    console.log(name, account);
     try {
-      if (!name){
+      if (!name || !userAddress || !password || !mnemonic) {
         return setError("Name And Account Address, cannot be empty");
+
       }
       const contract = await connectingWithContract();
-      console.log(contract);
-      console.log("test",password);
-      
       const alice = crypto.createECDH('secp256k1');
-      alice.generateKeys();
-      const alicePublicKey = '0x'+ alice.getPublicKey('hex');
-      const alicePrivateKey = '0x'+ alice.getPrivateKey('hex');
-      const getCreatedUser = await contract.registerUser(userAddress, name,alicePublicKey,alicePrivateKey);
-      setLoading(true);
+      const mnemonicEncrypted = await encryptMnemonic(mnemonic,password,account);
+      localStorage.setItem(account,mnemonicEncrypted);
+      const privateKey = await mnemonicToPrivateKey(mnemonic);
+      alice.setPrivateKey(privateKey,'hex');
+      const alicePublicKey = alice.getPublicKey('hex');
+      const getCreatedUser = await contract.registerUser(userAddress, name,alicePublicKey,password);
+      setLoading(true); 
       await getCreatedUser.wait().then((res) => {
         alert("User Registered successfully")});
       setLoading(false);
@@ -179,93 +124,99 @@ export const ChatAppProvider = ({ children }) => {
     }
   }
 
-
-  const loginUser = async ({name,userAddress, password, mnem}) => {
-    console.log(name, account);
+  //LOGIN USER
+  const loginUser = async ({name,userAddress,password}) => {
     try{
       if (!name){
         return setError("Name And Account Address, cannot be empty");
       }
-      
-      console.log("Logging In User");
       const contract = await connectingWithContract();
-      console.log(contract);
-      const tx = await contract.loginUser(userAddress,name);
+      const tx = await contract.loginUser(userAddress,name,password);
       setLoading(true);
       const rc = await tx.wait();
       const event = rc.events.find((event) => event.event === "LoginUser");
-      const [isUserLoggedIn] = await event.args;
-      if (isUserLoggedIn) {
-        console.log("User LoggedIn successfully");
-        setLoading(false);
-        window.location.reload();
-        router.push("/alluser");
+      const [state] = await event.args;
+      if (state) {
+        // ở đây sẽ là kiểm tra xem ở local storage có private key (mnemonic) của user không
+        const localMnemonic = localStorage.getItem(account);
+        if (localMnemonic !== null && localMnemonic !== undefined) {
+          setIsHaveMnemonic(true);
+          setIsUserLoggedIn(true);
+          if(sessionStorage.getItem(account) === null) {
+            const scrambled = await scrambleString(password);
+            sessionStorage.setItem(account,scrambled);
+          }
+          setLoading(false);
+          router.push("/");
+          window.location.reload();
+        } else { 
+          // ở đây nếu ở local storage chưa có thì phải dẫn tới trang nhập mnemonic, ở trang đó set luôn isUserLoggedIn = true
+          setIsUserLoggedIn(false);
+          setLoading(false);
+          window.location.reload();
+        }
       } else {
         alert("User LoggedIn failed");
+        window.location.reload();
       }
+      setLoading(false);
+      window.location.reload();
     }
-      catch (error) {
-        console.log("Cannot login");
-        alert(error);
-      }
-    };
-  
-    // Logout user
-    const logOutUser = async () => {
-      try {
-        // Ensure you are connected to the contract
-        const contract = await connectingWithContract();
-        if (!account) {
-          throw new Error("No account connected");
-        }
-  
-        // Interact with the smart contract to log out
-        const tx = await contract.logoutUser(account);
-        await tx.wait();
-  
-        // Clear local state and localStorage
-        setAccount("");
-        setUserName("");
-        setFriendLists([]);
-        setAddFriendLists([]);
-        setWaitFriendLists([]);
-        setFriendMsg([]);
-        setUserLists([]);
-        setCurrentUserName("");
-        setCurrentUserAddress("");
-        setIsUserLoggedIn(false);
-        localStorage.removeItem("accountAddress");
-  
-        // Redirect to the login page
-        router.push("/login");
-      } catch (error) {
-        console.error("Failed to log out from the contract:", error);
-        setError("Failed to log out. Please try again.");
-      }
-    };
-
-    //READ MESSAGE
-  
-    const readMessage = async (friendAddress) => {
-      try {
-        const contract = await connectingWithContract();
-        const read = await contract.readMessage(friendAddress);
-
-        if (read.length === 0) {
-          setFriendMsg(read);
-        } else {
-        const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
-        const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2), 'hex');
-        const alice = crypto.createECDH('secp256k1');
-        const pp = await contract.getPrivateKey(account);
-        alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
-        const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
-        const decryptedMsg = decryptMessages(read,aliceSecret);
-        setFriendMsg(decryptedMsg);
-      }
-    } 
     catch (error) {
-      console.log("Currently You Have no Message");
+      alert(error);
+    }
+  };
+  //LOGOUT USER
+  const logOutUser = async () => {
+    try {
+      const contract = await connectingWithContract();
+      if (!account) {
+        throw new Error("No account connected");
+      }
+      const tx = await contract.logoutUser(account);
+      setLoading(true);
+      await tx.wait();
+      setLoading(false);
+      // Clear local state and localStorage
+      setAccount("");
+      setUserName("");
+      setFriendLists([]);
+      setAddFriendLists([]);
+      setWaitFriendLists([]);
+      setFriendMsg([]);
+      setUserLists([]);
+      setCurrentUserName("");
+      setCurrentUserAddress("");
+      setIsUserLoggedIn(false);
+      router.push("/login");
+    } catch (error) {
+      setError("Failed to log out. Please try again.");
+    }
+  }
+
+  //READ MESSAGE
+  const readMessage = async (friendAddress) => {
+    try {
+      const contract = await connectingWithContract();
+      const read = await contract.readMessage(friendAddress);
+      if (read.length === 0) {
+        setFriendMsg(read);
+      } else {
+      const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
+      const friendPublicKey = Buffer.from(friendPublicKeyHex, 'hex');
+      const alice = crypto.createECDH('secp256k1');
+      // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để giải mã
+      const userMnemonic = localStorage.getItem(account);
+      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
+      const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
+      alice.setPrivateKey(privateKey,'hex');
+      const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
+      const decryptedMsg = await decryptMessages(read,aliceSecret);
+      setFriendMsg(decryptedMsg);
+      }
+    } catch (error) {
+      setError("Something went wrong",error);
     }
   };
 
@@ -303,20 +254,24 @@ export const ChatAppProvider = ({ children }) => {
   };
 
   //SEND MESSAGE TO YOUR FRIEND
-  const sendMessage = async ({ msg, address,publicKey}) => {
+  const sendMessage = async ({ msg, address}) => {
     try {
       if (!msg || !address) return setError("Please Type your Message");
       const contract = await connectingWithContract();
       const friendPublicKeyHex = await contract.getPublicKey(address);
-      const friendPublicKey = Buffer.from(friendPublicKeyHex.slice(2),'hex'); // Loại bỏ '0x' prefix
+      const friendPublicKey = Buffer.from(friendPublicKeyHex,'hex');
       // Tính toán khóa bí mật chung
       const alice = crypto.createECDH('secp256k1');
-      const pp = await contract.getPrivateKey(account);
-      alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để mã hóa
+      const userMnemonic = localStorage.getItem(account);
+      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
+      const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
+      alice.setPrivateKey(privateKey,'hex');
       const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
-      const encryptedMessage = encrypt(msg,aliceSecret);
-      //const hmacdigest = createHMAC(msg,aliceSecret)
-      const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv);
+      const encryptedMessage = await encrypt(msg,aliceSecret);
+      const hmacdigest = await createHMAC(msg,aliceSecret);
+      const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv,hmacdigest);
       setLoading(true);
       await addMessage.wait();
       setLoading(false);
@@ -364,6 +319,10 @@ export const ChatAppProvider = ({ children }) => {
         error,
         currentUserName,
         currentUserAddress,
+        setUserName,
+        isHaveMnemonic,
+        isFriends,
+        logOutUser,
       }}
     >
       {children}

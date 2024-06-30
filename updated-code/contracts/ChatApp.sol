@@ -7,11 +7,11 @@ contract ChatApp{
 
    
     event LoginUser(bool isUserLoggedIn);
-    event RegisterUser(address addr, string name,bool isUserLoggedIn, string pubkey, string privkey);
+    event RegisterUser(address addr, string name,bool isUserLoggedIn, string pubkey, string pwdHashed);
     event LogoutUser(bool isUserLoggedIn);
     event KeyRegistered(address indexed user);
     event KeyUpdated(address indexed user);
-    event messageSentEvent(address indexed sender, address indexed receiver, string message, uint256 timestamp, string iv);
+    event messageSentEvent(address indexed sender, address indexed receiver, string message, uint256 timestamp, string iv,string hmac);
 
 
    
@@ -24,7 +24,7 @@ contract ChatApp{
         friend[] waitFriendlist;
         bool isUserLoggedIn;
         string pubkey;
-        string privkey;
+        bytes32 passwordHashed;
     }
 
     struct friend{
@@ -37,6 +37,7 @@ contract ChatApp{
         uint256 timestamp;
         string msg;
         string iv;
+        string hmac;
     }
 
     struct AllUserStruck{
@@ -49,8 +50,6 @@ contract ChatApp{
 
     mapping(address => user) public userList;
     mapping(bytes32 => message[]) allMessages;
-    //mapping(address => PreKeyBundle) public preKeyBundles;
-    //mapping(address=>bytes) public publicKey;
 
     address [] public addresses;
 
@@ -59,10 +58,11 @@ contract ChatApp{
         return bytes(userList[pubkey].name).length > 0;
     }
 
-    function loginUser(address _address, string calldata _name) external returns(bool){
+    function loginUser(address _address, string calldata _name, string calldata _password) external returns(bool){
         require(checkUserExists(_address), "User is not registered");
         if(keccak256(abi.encodePacked(userList[_address].name)) ==
-            keccak256(abi.encodePacked(_name)) && userList[_address].addr == _address){
+            keccak256(abi.encodePacked(_name)) && userList[_address].addr == 
+            _address && keccak256(abi.encodePacked(_password)) == userList[_address].passwordHashed){
             userList[msg.sender].isUserLoggedIn = true;
             emit LoginUser(true);
             return userList[_address].isUserLoggedIn;
@@ -82,7 +82,7 @@ contract ChatApp{
         
     }
     //CREATE ACCOUNT
-    function registerUser(address _address, string calldata _name,string calldata _pubkey, string calldata _privkey) external returns(bool){
+    function registerUser(address _address, string calldata _name,string calldata _pubkey, string calldata _password) external returns(bool){
         require(bytes(_name).length > 0, "Username cannot be empty");
         require(checkUserExists(_address) == false, "User already exists");
         
@@ -90,9 +90,9 @@ contract ChatApp{
         userList[_address].addr = _address;
         userList[_address].isUserLoggedIn = false;
         userList[_address].pubkey = _pubkey;
-        userList[_address].privkey = _privkey;
+        userList[_address].passwordHashed = keccak256(abi.encodePacked(_password));
         
-        emit RegisterUser(_address, _name, false, _pubkey, _privkey);
+        emit RegisterUser(_address, _name, false, _pubkey, _password);
         getAllUsers.push(AllUserStruck(_name, msg.sender));
         return true;
     }
@@ -177,16 +177,16 @@ contract ChatApp{
     }
 
     //SEND MESSAGE
-    function sendMessage(address friend_key, string calldata _msg, string calldata iv) external{
+    function sendMessage(address friend_key, string calldata _msg, string calldata iv,string calldata hmac) external{
        require(checkUserExists(msg.sender), "Create an account first");
         require(checkUserExists(friend_key), "User is not registered");
         require(checkAlreadyFriends(msg.sender, friend_key), "You are not friend with the given user");
 
         bytes32 chatCode = _getChatCode(msg.sender, friend_key);
-        message memory newMsg = message(msg.sender, block.timestamp, _msg, iv);
+        message memory newMsg = message(msg.sender, block.timestamp, _msg, iv,hmac);
         allMessages[chatCode].push(newMsg);
 
-        emit messageSentEvent(msg.sender, friend_key, _msg, block.timestamp, iv);
+        emit messageSentEvent(msg.sender, friend_key, _msg, block.timestamp, iv,hmac);
     }
 
     //READ MESSAGE
@@ -203,8 +203,8 @@ contract ChatApp{
     function getPublicKey(address addr) public view returns(string memory){
         return userList[addr].pubkey;
     }
-    function getPrivateKey(address addr) public view returns(string memory){
-        return userList[addr].privkey;
-    }
+    // function getPrivateKey(address addr) public view returns(string memory){
+    //     return userList[addr].privkey;
+    // }
 
 }
