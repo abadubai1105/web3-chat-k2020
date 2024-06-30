@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/mnt/c/Users/KhanhDang/Desktop/FE_test/test/updated-code/contracts/ChatApp.sol": {
-      "lastModificationDate": 1719566790795,
-      "contentHash": "07042ec265397ada14c316ed09db41ba",
+      "lastModificationDate": 1719771378533,
+      "contentHash": "1199ab03b3692732b06a71b0d1491551",
       "sourceName": "contracts/ChatApp.sol",
       "solcConfig": {
         "version": "0.8.17",
