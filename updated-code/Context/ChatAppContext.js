@@ -9,7 +9,7 @@ import {
   connectingWithContract,
 } from "../Utils/apiFeature";
 
-import {encrypt,decrypt,createHMAC,mnemonicToPrivateKey,verifyHMAC,encryptMnemonic,decryptMnemonic} from "../Utils/Help";
+import {encrypt,decrypt,createHMAC,mnemonicToPrivateKey,verifyHMAC,encryptMnemonic,decryptMnemonic,scrambleString,unscrambleString} from "../Utils/Help";
 
 export const ChatAppContect = React.createContext();
 
@@ -54,10 +54,8 @@ export const ChatAppProvider = ({ children }) => {
       }
       if(isUserLoggedIn === true) {
         //GET USER NAME
-        //alert("lala")
         const userName = await contract.getUsername(connectAccount);
         setUserName(userName);
-        //alert(userName);
         //GET MY FRIEND LIST
         const friendLists = await contract.getMyFriendList();
         setFriendLists(friendLists);
@@ -75,8 +73,8 @@ export const ChatAppProvider = ({ children }) => {
       // IS SET USER LOGGED IN
       //const isUserLoggedIn = await contract.checkIsUserLogged();
     } catch (error) {
-      // setError("Please Install And Connect Your Wallet");
-      console.log(error);
+      setError("Something went wrong",error);
+      
     }
   };
   
@@ -88,26 +86,19 @@ export const ChatAppProvider = ({ children }) => {
   async function decryptMessages(messages, secretKey) {
     return Promise.all(
       messages.map(async (msg) => {
-        console.log("Decrypt", msg.msg);
         const decryptedMsg = await decrypt(msg.msg, secretKey, msg.iv);
         const isValid = await verifyHMAC(msg.msg, msg.hmac, secretKey);
-        console.log('Decrypted Message:', decryptedMsg);
-        return { ...msg, msg: decryptedMsg };
-  
-        // if (isValid) {
-        //   console.log('Decrypted Message:', decryptedMsg);
-        //   return { ...msg, msg: decryptedMsg };
-        // } else {
-        //   console.log('HMAC verification failed');
-        //   return { ...msg, msg: 'HMAC verification failed' };
-        // }
+        if (!isValid) {
+          return { ...msg, msg: decryptedMsg };
+        } else {
+          return { ...msg, msg: 'HMAC verification failed' };
+        }
       })
     );
   }
   //REGISTER USER
   const createAccount = async ({name,userAddress,password,mnemonic}) => {
     //event.preventDefault();
-    console.log(name, account);
     try {
       if (!name || !userAddress || !password || !mnemonic) {
         return setError("Name And Account Address, cannot be empty");
@@ -134,14 +125,11 @@ export const ChatAppProvider = ({ children }) => {
 
   //LOGIN USER
   const loginUser = async ({name,userAddress,password}) => {
-    console.log(name, account);
     try{
       if (!name){
         return setError("Name And Account Address, cannot be empty");
       }
-      console.log("Logging In User");
       const contract = await connectingWithContract();
-      console.log(contract);
       const tx = await contract.loginUser(userAddress,name,password);
       setLoading(true);
       const rc = await tx.wait();
@@ -150,15 +138,13 @@ export const ChatAppProvider = ({ children }) => {
       if (state) {
         // ở đây sẽ là kiểm tra xem ở local storage có private key (mnemonic) của user không
         const localMnemonic = localStorage.getItem(account);
-        // console.log("localMnemonic",localMnemonic);
-        // console.log("isHaveMnemonic",isHaveMnemonic);
         if (localMnemonic !== null && localMnemonic !== undefined) {
           setIsHaveMnemonic(true);
           setIsUserLoggedIn(true);
           if(sessionStorage.getItem(account) === null) {
-            sessionStorage.setItem(account,password);
+            const scrambled = await scrambleString(password);
+            sessionStorage.setItem(account,scrambled);
           }
-          //sessionStorage.setItem(account,password);
           setLoading(false);
           router.push("/");
           window.location.reload();
@@ -168,18 +154,14 @@ export const ChatAppProvider = ({ children }) => {
           setLoading(false);
           window.location.reload();
         }
-        // setIsUserLoggedIn(true);
-        // setLoading(false);
-        // window.location.reload();
-        //Router.push("/ChatHome");
       } else {
         alert("User LoggedIn failed");
+        window.location.reload();
       }
       setLoading(false);
       window.location.reload();
     }
     catch (error) {
-      console.log("Cannot Login !");
       alert(error);
     }
   };
@@ -206,9 +188,7 @@ export const ChatAppProvider = ({ children }) => {
       setCurrentUserAddress("");
       setIsUserLoggedIn(false);
       router.push("/login");
-      //window.location.reload();
     } catch (error) {
-      console.error("Failed to log out from the contract:", error);
       setError("Failed to log out. Please try again.");
     }
   }
@@ -219,32 +199,23 @@ export const ChatAppProvider = ({ children }) => {
       const contract = await connectingWithContract();
       const read = await contract.readMessage(friendAddress);
       if (read.length === 0) {
-        //console.log("Currently You Have no Message");
         setFriendMsg(read);
       } else {
       const friendPublicKeyHex = await contract.getPublicKey(friendAddress);
-      console.log('public key ban hien',friendPublicKeyHex);
       const friendPublicKey = Buffer.from(friendPublicKeyHex, 'hex');
-      console.log(friendPublicKey);
       const alice = crypto.createECDH('secp256k1');
       // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để giải mã
-      //const pp = await contract.getPrivateKey(account);
       const userMnemonic = localStorage.getItem(account);
-      console.log("user mnemonic",userMnemonic);
-      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,sessionStorage.getItem(account),account);
-      console.log('user mnemonic',userMnemonic);
+      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
       const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
-      //const privateKeyBuffer = Buffer.from(privateKey.slice(0,64), 'hex');
       alice.setPrivateKey(privateKey,'hex');
       const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
-      //console.log(aliceSecret);
-      console.log("Message check:",read);
       const decryptedMsg = await decryptMessages(read,aliceSecret);
-      console.log("decrypted",decryptedMsg);
       setFriendMsg(decryptedMsg);
       }
     } catch (error) {
-      console.log("Currently You Have no Message",error);
+      setError("Something went wrong",error);
     }
   };
 
@@ -282,7 +253,7 @@ export const ChatAppProvider = ({ children }) => {
   };
 
   //SEND MESSAGE TO YOUR FRIEND
-  const sendMessage = async ({ msg, address,publicKey}) => {
+  const sendMessage = async ({ msg, address}) => {
     try {
       if (!msg || !address) return setError("Please Type your Message");
       const contract = await connectingWithContract();
@@ -291,24 +262,14 @@ export const ChatAppProvider = ({ children }) => {
       // Tính toán khóa bí mật chung
       const alice = crypto.createECDH('secp256k1');
       // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để mã hóa
-      //const pp = await contract.getPrivateKey(account);
       const userMnemonic = localStorage.getItem(account);
-      console.log("user mnemonic",userMnemonic);
-      console.log("session storage",sessionStorage.getItem(account));
-      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,sessionStorage.getItem(account),account);
-      console.log("Decrypted",mnemonicDecrypted);
-      //alice.setPrivateKey(Buffer.from(pp.slice(2),'hex'));
+      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
       const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
-      //const privateKeyBuffer = Buffer.from(privateKey.slice(0,64), 'hex');
       alice.setPrivateKey(privateKey,'hex');
-      console.log("private key",alice.getPrivateKey().toString('hex'));
-      console.log("public key",alice.getPublicKey().toString('hex'));
       const aliceSecret = alice.computeSecret(friendPublicKey,'hex','hex');
       const encryptedMessage = await encrypt(msg,aliceSecret);
-      console.log("Encrypted Message:",encryptedMessage.content);
-      console.log("IV:",encryptedMessage.iv);
-      const hmacdigest = createHMAC(msg,aliceSecret);
-      console.log("HMAC Digest:",hmacdigest.toString('hex'));
+      const hmacdigest = await createHMAC(msg,aliceSecret);
       const addMessage = await contract.sendMessage(address, encryptedMessage.content,encryptedMessage.iv,hmacdigest);
       setLoading(true);
       await addMessage.wait();

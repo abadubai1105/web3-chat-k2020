@@ -53,7 +53,7 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   const handleSubmit = async (mnemonic) => {
     // Check if any required fields are empty or have errors
     if (!name || !userAddress || !password || passwordError || mnemInputError) {
-      console.log("Please fill in all required fields correctly.");
+      alert("Please fill in all required fields correctly.");
       return;
     }
     setMnemVisible(false);

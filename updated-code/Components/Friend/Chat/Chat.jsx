@@ -31,7 +31,6 @@ const Chat = ({
   useEffect(() => {
     if (!router.isReady) return;
     setChatData(router.query);
-    console.log(router.query);
   }, [router.isReady, router.query]);
 
   useEffect(() => {

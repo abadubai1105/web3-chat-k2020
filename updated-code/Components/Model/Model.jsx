@@ -71,7 +71,7 @@ const Model = ({
 
   const handleSubmit = () => {
     if (!name || !userAddress || !password || passwordError) {
-      console.log("Please fill in all required fields correctly.");
+      alert("Please fill in all required fields correctly.");
       return;
     }
     if (!mnemonic) {

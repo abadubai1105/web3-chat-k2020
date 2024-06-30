@@ -9,7 +9,6 @@ const [mnemonic, setMnemonic] = useState("");
 const fetchMnemonic = async () => {
   try {
     const generatedMnemonic = await generateMnemonic();
-    console.log("Generated Mnemonic:", generatedMnemonic);
 
     if (typeof generatedMnemonic === "string") {
       setMnemonic(generatedMnemonic);

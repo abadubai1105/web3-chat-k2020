@@ -61,7 +61,8 @@ contract ChatApp{
     function loginUser(address _address, string calldata _name, string calldata _password) external returns(bool){
         require(checkUserExists(_address), "User is not registered");
         if(keccak256(abi.encodePacked(userList[_address].name)) ==
-            keccak256(abi.encodePacked(_name)) && userList[_address].addr == _address && keccak256(abi.encodePacked(_password)) == userList[_address].passwordHashed){
+            keccak256(abi.encodePacked(_name)) && userList[_address].addr == 
+            _address && keccak256(abi.encodePacked(_password)) == userList[_address].passwordHashed){
             userList[msg.sender].isUserLoggedIn = true;
             emit LoginUser(true);
             return userList[_address].isUserLoggedIn;
@@ -81,7 +82,7 @@ contract ChatApp{
         
     }
     //CREATE ACCOUNT
-    function registerUser(address _address, string calldata _name,string calldata _pubkey, string calldata _pwd) external returns(bool){
+    function registerUser(address _address, string calldata _name,string calldata _pubkey, string calldata _password) external returns(bool){
         require(bytes(_name).length > 0, "Username cannot be empty");
         require(checkUserExists(_address) == false, "User already exists");
         
@@ -89,9 +90,9 @@ contract ChatApp{
         userList[_address].addr = _address;
         userList[_address].isUserLoggedIn = false;
         userList[_address].pubkey = _pubkey;
-        userList[_address].passwordHashed = keccak256(abi.encodePacked(_pwd));
+        userList[_address].passwordHashed = keccak256(abi.encodePacked(_password));
         
-        emit RegisterUser(_address, _name, false, _pubkey, _pwd);
+        emit RegisterUser(_address, _name, false, _pubkey, _password);
         getAllUsers.push(AllUserStruck(_name, msg.sender));
         return true;
     }
