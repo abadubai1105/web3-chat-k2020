@@ -1,10 +1,11 @@
-import React from "react";
+import React,{useContext} from "react";
 import Image from "next/image";
 
 //INTERNAL IMPORT
 import Style from "./UserCard.module.css";
 import images from "../../assets";
 const FriendRequestCard = ({ el, i, acptFriends }) => {
+  const isFriends = useContext("ChatAppContect");
   return (
     <div className={Style.UserCard}>
       <div className={Style.UserCard_box}>
@@ -19,13 +20,14 @@ const FriendRequestCard = ({ el, i, acptFriends }) => {
         <div className={Style.UserCard_box_info}>
           <h3>{el.name}</h3>
           <p>{el.pubkey.slice(0, 25)}..</p>
+          {!isFriends ? (
           <button
             onClick={() =>
               acptFriends({ name: el.name, userAddress: el.pubkey })
             }
           >
             Accept
-          </button>
+          </button>) : (<p>Accepted</p>)}
         </div>
       </div>
 

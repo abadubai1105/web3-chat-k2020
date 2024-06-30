@@ -1,16 +1,34 @@
 import "../styles/globals.css";
 
-//INTERNAL IMPORT
-import { ChatAppProvider } from "../Context/ChatAppContext";
-import { NavBar } from "../Components/index";
+// INTERNAL IMPORT
+import { ChatAppContect, ChatAppProvider } from "../Context/ChatAppContext";
+import { NavBar, Loader } from "../Components/index";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 
-const MyApp = ({ Component, pageProps }) => (
-  <div>
+const MyApp = ({ Component, pageProps }) => {
+  const router = useRouter();
+  const isUserLoggedIn = useState(ChatAppContect);
+  const loading = useContext(ChatAppContect);
+
+  useEffect(() => {
+    if (!isUserLoggedIn && router.pathname !== "/login") {
+      router.push("/login");
+    }
+  }, [isUserLoggedIn, router]);
+
+  return (
     <ChatAppProvider>
-      <NavBar />
-      <Component {...pageProps} />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {isUserLoggedIn && router.pathname !== "/login" && router.pathname !== "/UserRegister" && <NavBar />}
+          <Component {...pageProps} />
+        </>
+      )}
     </ChatAppProvider>
-  </div>
-);
+  );
+};
 
 export default MyApp;

@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import 'bootstrap/dist/css/bootstrap.css';
 
 //INTERNAL IMPORT
 import Style from "./NavBar.module.css";
 import { ChatAppContect } from "../../Context/ChatAppContext";
-import { Model, Error } from "../index";
+import { Model, Error, Register } from "../index";
 import images from "../../assets";
 
-const NavBar = () => {
+const NavBar = ({onLogOut}) => {
   const menuItems = [
     {
       menu: "All Users",
@@ -36,9 +37,28 @@ const NavBar = () => {
   const [active, setActive] = useState(2);
   const [open, setOpen] = useState(false);
   const [openModel, setOpenModel] = useState(false);
+  const [openRegister, setOpenRegister] = useState(false);
 
-  const { account, userName, connectWallet, loginUser, error } =
-    useContext(ChatAppContect);
+  const {
+    account,
+    userName,
+    connectWallet,
+    loginUser,
+    error,
+    registerUser,
+    logOutUser,
+    isUserLoggedIn,
+    setIsUserLoggedIn, 
+  } = useContext(ChatAppContect);
+
+  const openUser = () => {
+    setOpenModel(true);
+    setOpenRegister(true);
+  }
+  const handleLogOut = async () => {
+    await logOutUser();
+    setIsUserLoggedIn(false);
+  }
   return (
     <div className={Style.NavBar}>
       <div className={Style.NavBar_box}>
@@ -101,24 +121,25 @@ const NavBar = () => {
           <div className={Style.NavBar_box_right_connect}>
             {account == "" ? (
               <button onClick={() => connectWallet()}>
-                {""}
                 <span>Connect Wallet</span>
               </button>
             ) : (
-              <button onClick={() => setOpenModel(true)}>
-                {""}
+              <button onClick={() => openUser()}>
                 <Image
                   src={userName ? images.accountName : images.create2}
                   alt="Account image"
                   width={20}
                   height={20}
                 />
-                {""}
                 <small>{userName || "Create Account"}</small>
               </button>
             )}
           </div>
-
+            
+            {/* LOGOUT */}
+          <div className={Style.NavBar_box_right_logout}>
+            <button type="button" className="btn btn-danger" onClick={handleLogOut}>Log Out</button>
+          </div>
           <div
             className={Style.NavBar_box_right_open}
             onClick={() => setOpen(true)}

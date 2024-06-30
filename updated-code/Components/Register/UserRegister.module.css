@@ -1,0 +1,77 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.h1 {
+  margin-bottom: 20px;
+}
+
+.input_group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.input_group input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 400px;
+}
+
+.button_group {
+  display: flex;
+  justify-content: space-between;
+  width: 220px;
+}
+
+.button_group button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #0070f3;
+  color: white;
+}
+
+.button_group button:nth-child(2) {
+  background-color: #555;
+}
+
+.password_input_wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.password_input_wrapper input {
+  flex-grow: 1;
+  padding-right: 40px; 
+}
+
+.toggle_password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.toggle_password img {
+  width: 20px;
+  height: 20px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 
 // INTERNAL IMPORT
@@ -8,7 +8,7 @@ import images from "../../assets";
 const UserCard = ({ el, i, addFriends }) => {
   // State to manage the image source
   const [imageSrc, setImageSrc] = useState(images[`image${i + 1}`]);
-
+  const isFriends = useContext("ChatAppContect");
   // Effect to load image from local storage
   useEffect(() => {
     const savedImage = localStorage.getItem(`userImage-${i}`);
@@ -57,13 +57,14 @@ const UserCard = ({ el, i, addFriends }) => {
         <div className={Style.UserCard_box_info}>
           <h3>{el.name}</h3>
           <p>{el.accountAddress.slice(0, 25)}..</p>
+          {!isFriends ? (
           <button
             onClick={() =>
               addFriends({ name: el.name, userAddress: el.accountAddress })
             }
           >
             Add Friend
-          </button>
+          </button>) : (<p>Already Friend</p>)}
         </div>
       </div>
 

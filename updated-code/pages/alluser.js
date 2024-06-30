@@ -5,7 +5,7 @@ import { ChatAppContect } from "../Context/ChatAppContext";
 import 'bootstrap/dist/css/bootstrap.css';
  
 const AllUser = () => { 
-  const { userLists, addFriends } = useContext(ChatAppContect); 
+  const { userLists, addFriends, currentUserAddress } = useContext(ChatAppContect); 
   const [searchTerm, setSearchTerm] = useState(""); 
   const [filteredUsers, setFilteredUsers] = useState([]); 
  
@@ -58,7 +58,7 @@ const AllUser = () => {
       </div> 
       <div className={Style.alluser}> 
         {filteredUsers.map((el, i) => ( 
-          <UserCard key={i + 1} el={el} i={i} addFriends={addFriends} /> 
+          <UserCard key={i + 1} el={el} i={i} addFriends={addFriends} currentUserAddress={currentUserAddress} /> 
         ))} 
       </div> 
     </div> 
