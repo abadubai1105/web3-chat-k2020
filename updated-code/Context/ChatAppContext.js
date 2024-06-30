@@ -102,7 +102,7 @@ export const ChatAppProvider = ({ children }) => {
         //GET ALL APP USER LIST
         const userList = await contract.getAllAppUser();
         setUserLists(userList);
-        router.push("/alluser");
+        //router.push("/alluser");
       } 
       // IS SET USER LOGGED IN
       //const isUserLoggedIn = await contract.checkIsUserLogged();
@@ -199,7 +199,7 @@ export const ChatAppProvider = ({ children }) => {
         console.log("User LoggedIn successfully");
         setLoading(false);
         window.location.reload();
-        //Router.push("/ChatHome");
+        router.push("/alluser");
       } else {
         alert("User LoggedIn failed");
       }
