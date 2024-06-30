@@ -32,6 +32,7 @@ const Mnem = ({ handleClose, handleSubmit, mnemInputError }) => {
     <div className={Style.mnem}>
       <div className={Style.mnem_content}>
         <h2>Generated MNEMONIC</h2>
+        <h6>You must save all this words for logging in later!</h6>
         {mnemonic && (
           <textarea
             className={Style.mnemonicTextarea}
