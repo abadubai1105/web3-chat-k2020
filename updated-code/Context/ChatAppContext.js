@@ -147,7 +147,7 @@ export const ChatAppProvider = ({ children }) => {
             sessionStorage.setItem(account,scrambled);
           }
           setLoading(false);
-          router.push("/");
+          router.push("/alluser");
           window.location.reload();
         } else { 
           // ở đây nếu ở local storage chưa có thì phải dẫn tới trang nhập mnemonic, ở trang đó set luôn isUserLoggedIn = true
