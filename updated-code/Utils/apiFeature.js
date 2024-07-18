@@ -1,4 +1,3 @@
-// 
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
@@ -18,6 +17,20 @@ export const ChechIfWalletConnected = async () => {
     console.log(error);
   }
 };
+// export const RequirePermission = async () => {
+//   try {
+//     if (!window.ethereum) return alert("Install MateMask");
+
+//     const accounts = await window.ethereum.request({
+//       method: "wallet_requestPermissions",
+//     });
+
+//     const firstAccount = accounts[0];
+//     return firstAccount;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 export const connectWallet = async () => {
   try {
@@ -40,9 +53,9 @@ const fetchContract = (signerOrProvider) =>
 export const connectingWithContract = async () => {
   try {
     
-    const web3modal = new Web3Modal();
-    const connection = await web3modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
+    //const web3modal = new Web3Modal();
+    //const connection = await web3modal.connect();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const contract = fetchContract(signer);
     return contract;
@@ -85,3 +98,4 @@ export const converTime = (time) => {
 
 //   return realTime;
 // };
+

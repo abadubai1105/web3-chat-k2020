@@ -9,5 +9,5 @@ import Friend from "./Friend/Friend";
 import Register from "../pages/UserRegister";
 import Login from "../pages/login";
 import Mnem from "./Mnem/Mnem";
-
-export { NavBar, Filter, Error, Loader, Model, UserCard, FriendRequestCard, Friend, Register, Login, Mnem };
+import Forgot from "../pages/Forgot";
+export { NavBar, Filter, Error, Loader, Model, UserCard, FriendRequestCard, Friend, Register, Login, Mnem,Forgot};

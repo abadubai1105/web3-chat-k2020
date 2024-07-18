@@ -7,6 +7,7 @@ import images from "../../assets";
 const FriendRequestCard = ({ el, i, acptFriends }) => {
   const isFriends = useContext("ChatAppContect");
 
+  
   return (
     <div className={Style.UserCard}>
       <div className={Style.UserCard_box}>

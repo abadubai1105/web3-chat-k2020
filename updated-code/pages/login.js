@@ -8,7 +8,7 @@ import { ChatAppContect } from "../Context/ChatAppContext";
 import { Loader, Model } from "../Components/index";
 
 const Login = () => {
-  const { loginUser, registerUser, loading, account, userName, error, connectWallet } = useContext(ChatAppContect);
+  const { loginUser, registerUser, loading, account, userName, error, connectWallet,setAccount,fetchData} = useContext(ChatAppContect);
   const [openModel, setOpenModel] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
 
@@ -17,6 +17,10 @@ const Login = () => {
     setOpenRegister(true);
   }
 
+  const firstConnect = async () => {
+    const connectAccount = await connectWallet();
+    await setAccount(connectAccount);
+  }
   return (
     <div className={Style.loginContainer}>
       {loading && <Loader />}
@@ -25,7 +29,7 @@ const Login = () => {
         <h1>WELCOME TO WEB3 CHAT APP</h1>
         <div>
             {account == "" ? (
-              <button onClick={() => connectWallet()}>
+              <button onClick={() => firstConnect()}>
                 <span>LET'S START</span>
               </button>
             ) : (
