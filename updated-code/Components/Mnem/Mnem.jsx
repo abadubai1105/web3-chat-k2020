@@ -13,7 +13,7 @@ const fetchMnemonic = async () => {
     if (typeof generatedMnemonic === "string") {
       setMnemonic(generatedMnemonic);
     } else {
-      console.error("Generated mnemonic is not a string:", generatedMnemonic);
+      console.error("Generated mnemonic is not a string:");
     }
   } catch (error) {
     console.error("Error generating mnemonic:", error);

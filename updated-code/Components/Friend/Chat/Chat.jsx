@@ -34,12 +34,16 @@ const Chat = ({
     setChatData(router.query);
   }, [router.isReady, router.query]);
 
-  useEffect(() => {
+  const check = async () => {
     if (chatData.address) {
-      readMessage(chatData.address);
-      readUser(chatData.address);
+      //console.log(chatData.address);
+      await readMessage(chatData.address);
+      await readUser(chatData.address);
     }
-  }, [chatData.address, readMessage, readUser]);
+  }
+  useEffect(() => {
+    check();
+  }, [chatData.address, readMessage, readUser]);//[chatData.address, readMessage, readUser]);
 
   return (
     <div className={Style.Chat}>

@@ -27,6 +27,7 @@ export const ChatAppProvider = ({ children }) => {
   const [isUserLoggedIn,setIsUserLoggedIn] = useState(false);
   const [isFriends,setIsFriends] = useState(false);
   const [isHaveMnemonic,setIsHaveMnemonic] = useState(false);
+  const [scrambledData,setScrambledData] = useState("");
 
   //CHAT USER DATA
   const [currentUserName, setCurrentUserName] = useState("");
@@ -37,7 +38,6 @@ export const ChatAppProvider = ({ children }) => {
   //FETCH DATA TIME OF PAGE LOAD
   const fetchData = async () => {
     try {
-      
       //GET CONTRACT
       const contract = await connectingWithContract();
       //GET ACCOUNT
@@ -47,34 +47,36 @@ export const ChatAppProvider = ({ children }) => {
       const isHavePassword = await sessionStorage.getItem(connectAccount);
       if (updateLogin && isHavePassword) {
         //alert("Đăng nhập thành công");
-        setIsUserLoggedIn(true);
-        router.push("/");
-      } else {
+        if(isUserLoggedIn === true) {
+          //GET USER NAME
+          const userName = await contract.getUsername(connectAccount);
+          setUserName(userName);
+          //GET MY FRIEND LIST
+          const friendLists = await contract.getMyFriendList();
+          setFriendLists(friendLists);
+          //GET WAIT FRIEND LIST
+          const waitFriendLists = await contract.getMyWFriendList();
+          setWaitFriendLists(waitFriendLists);
+          //GET ADD FRIEND LIST
+          const addFriendLists = await contract.getMyAFriendList();
+          setAddFriendLists(addFriendLists);
+          //GET ALL APP USER LIST
+          const userList = await contract.getAllAppUser();
+          setUserLists(userList);
+          const scrambled = await sessionStorage.getItem(account);
+          setScrambledData(scrambled);
+        } else {
+          setIsUserLoggedIn(true);
+          router.push("/");
+        }
+      } else if (!updateLogin || !isHavePassword) {
         // setIsUserLoggedIn(false);
         router.push("/login");
       }
-      if(isUserLoggedIn === true) {
-        //GET USER NAME
-        const userName = await contract.getUsername(connectAccount);
-        setUserName(userName);
-        //GET MY FRIEND LIST
-        const friendLists = await contract.getMyFriendList();
-        setFriendLists(friendLists);
-        //GET WAIT FRIEND LIST
-        const waitFriendLists = await contract.getMyWFriendList();
-        setWaitFriendLists(waitFriendLists);
-        //GET ADD FRIEND LIST
-        const addFriendLists = await contract.getMyAFriendList();
-        setAddFriendLists(addFriendLists);
-        
-        //GET ALL APP USER LIST
-        const userList = await contract.getAllAppUser();
-        setUserLists(userList);
-      } 
       // IS SET USER LOGGED IN
       //const isUserLoggedIn = await contract.checkIsUserLogged();
     } catch (error) {
-      setError("Something went wrong",error);
+      setError("Something went wrong1",error);
       
     }
   };
@@ -207,7 +209,8 @@ export const ChatAppProvider = ({ children }) => {
       const alice = crypto.createECDH('secp256k1');
       // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để giải mã
       const userMnemonic = localStorage.getItem(account);
-      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      console.log(scrambledData);
+      const unscramble = await unscrambleString(scrambledData);
       const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
       const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
       alice.setPrivateKey(privateKey,'hex');
@@ -216,7 +219,7 @@ export const ChatAppProvider = ({ children }) => {
       setFriendMsg(decryptedMsg);
       }
     } catch (error) {
-      setError("Something went wrong",error);
+      setError("Something went wrong2",error);
     }
   };
 
@@ -264,7 +267,7 @@ export const ChatAppProvider = ({ children }) => {
       const alice = crypto.createECDH('secp256k1');
       // ở đây sẽ lấy private key (mnemonic) từ local storage để có thể tạo ra private key cho tính secret để mã hóa
       const userMnemonic = localStorage.getItem(account);
-      const unscramble = await unscrambleString(sessionStorage.getItem(account));
+      const unscramble = await unscrambleString(scrambledData);
       const mnemonicDecrypted = await decryptMnemonic(userMnemonic,unscramble,account);
       const privateKey = await mnemonicToPrivateKey(mnemonicDecrypted);
       alice.setPrivateKey(privateKey,'hex');
@@ -305,8 +308,6 @@ export const ChatAppProvider = ({ children }) => {
         connectingWithContract,
         setIsUserLoggedIn,
         loginUser,
-        logOutUser,
-        setUserName,
         isUserLoggedIn,
         account,
         userName,

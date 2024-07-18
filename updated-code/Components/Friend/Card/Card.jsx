@@ -8,8 +8,17 @@ import Style from "./Card.module.css";
 import images from "../../../assets";
 
 const Card = ({ readMessage, el, i, readUser }) => {
+  const handleOnClick = async () => {
+    try {
+      await readMessage(el.pubkey);
+      await readUser(el.pubkey);
+    } catch (error) {
+      console.error("Error reading message:", error);
+    }
+  };
   return (
-    <div onClick={() => (readMessage(el.pubkey), readUser(el.pubkey))}>
+     <div onClick={handleOnClick}>
+     {/* () => (readMessage(el.pubkey), readUser(el.pubkey))} */}
       <Link
         href={{
           pathname: "/",

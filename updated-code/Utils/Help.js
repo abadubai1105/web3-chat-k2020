@@ -18,7 +18,6 @@ exports.encrypt= async(text, secret) => {
     const cipher = crypto.createCipheriv('aes-256-ctr', key,iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    alert(encrypted);
     return {
         iv: iv.toString('hex'),
         content: encrypted
@@ -92,17 +91,17 @@ exports.decryptMnemonic = async (encryptedMnemonic, password,salt) => {
    return decrypted;
 }
 
-const generateKey = (length) => {
-    return new Promise((resolve, reject) => {
-        crypto.randomBytes(length, (err, buffer) => {
-            if (err) reject(err);
-            else resolve(buffer);
-        });
-    });
+const generateKey = async(length) => {
+    try {
+        const buffer = crypto.randomBytes(length);
+        return buffer;
+    } catch (err) {
+        throw err;
+    }
 };
 
 // XOR two buffers
-const xorBuffers = (buf1, buf2) => {
+const xorBuffers = async (buf1, buf2) => {
     const result = Buffer.alloc(buf1.length);
     for (let i = 0; i < buf1.length; i++) {
         result[i] = buf1[i] ^ buf2[i % buf2.length];
@@ -114,7 +113,7 @@ const xorBuffers = (buf1, buf2) => {
 exports.scrambleString = async (input) => {
     const inputBuffer = Buffer.from(input, 'utf8');
     const key = await generateKey(inputBuffer.length);
-    const scrambledBuffer = xorBuffers(inputBuffer, key);
+    const scrambledBuffer = await xorBuffers(inputBuffer, key);
     
     // Combine key and scrambled data
     const result = Buffer.concat([key, scrambledBuffer]);
@@ -129,7 +128,7 @@ exports.unscrambleString = async (scrambled) => {
     const key = buffer.slice(0, keyLength);
     const scrambledData = buffer.slice(keyLength);
     
-    const unscrambledBuffer = xorBuffers(scrambledData, key);
+    const unscrambledBuffer = await xorBuffers(scrambledData, key);
     return unscrambledBuffer.toString('utf8');
 };
 
