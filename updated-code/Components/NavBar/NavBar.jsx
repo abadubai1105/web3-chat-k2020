@@ -165,7 +165,7 @@ const NavBar = ({onLogOut}) => {
             </div>
           )}
           <div className={Style.NavBar_box_right_logout}>
-                <button type="button" className="btn btn-danger" onClick={handleLogOut}>Log Out</button>
+                <button type="button" className="btn btn-danger" disabled={!isUserLoggedIn} onClick={handleLogOut}>Log Out</button>
           </div>
 
           <div

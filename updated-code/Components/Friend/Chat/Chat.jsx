@@ -1,15 +1,14 @@
-import React, { useEffect, useState, useRef,Component} from "react";
+import React, { useEffect, useState, useRef,useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-
+import EmojiPicker from "emoji-picker-react";
 // INTERNAL IMPORT
 import Style from "./Chat.module.css";
 import images from "../../../assets";
 import { converTime } from "../../../Utils/apiFeature";
 import { Loader } from "../../index";
 
-
-const Chat  = ({
+const Chat = ({
   functionName,
   readMessage,
   friendMsg,
@@ -28,9 +27,11 @@ const Chat  = ({
   });
   const [localFriendMsg, setLocalFriendMsg] = useState([]);
   const [showLoading, setShowLoading] = useState(false);
+  const [open,setOpen] = useState(false);
+  const timeoutIdRef = useRef(null);
 
   const router = useRouter();
-  const fname = useRef("");
+  const fname = useRef(null);
 
   const fetchMessages = async () => {
     if (router.isReady && router.query.address) {
@@ -42,20 +43,13 @@ const Chat  = ({
   };
 
   useEffect(() => {
-      fetchMessages();
-  }, [router.isReady,router.query]);
+    fname?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [localFriendMsg.msg]);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (chatData.address) {
-  //       readMessage(chatData.address);
-  //       readUser(chatData.address);
-  //       setLocalFriendMsg(friendMsg);
-  //     }
-  //   }, 10000); // 5 seconds
-  
-  //   return () => clearInterval(interval);
-  // }, [chatData.address, readMessage,readUser]);
+  useEffect(() => {
+    fetchMessages();
+  }, [router.isReady, router.query]);
+
   useEffect(() => {
     let intervalId;
 
@@ -65,12 +59,13 @@ const Chat  = ({
         await readMessage(chatData.address);
         await setLocalFriendMsg(friendMsg);
       }
-    }, 10000); // 5 seconds
-
+    }, 6500); // 5 seconds
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
-  }, [chatData.address,readMessage]);
+  }, [chatData.address, readMessage]);
+
+
   const handleOnClick = async () => {
     try {
       console.log("Sending message...");
@@ -79,14 +74,41 @@ const Chat  = ({
         address: chatData.address,
         name: chatData.name,
       });
-      fname.current.value = "";
       setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
+  // const handleEmoji = (e) => {
+  //   setMessage((prev) => prev + e.emoji);
+  //   setOpen(false);
+  // };
+  const handleEmoji = (e) => {
+    setMessage((prev) => prev + e.emoji);
+    // clearTimeout(timeoutIdRef.current); // Xóa timeout nếu chọn emoji
+    // timeoutIdRef.current = setTimeout(() => {
+    //   setOpen(false);
+    // }, 3000);
+  };
 
-  // Effect to handle loading state based on keys
+  const handleClickOutside = useCallback((e) => {
+    if (!e.target.closest('.emoji')) {
+      setOpen(false);
+      clearTimeout(timeoutIdRef.current); // Xóa timeout nếu nhấn ra ngoài
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open, handleClickOutside]);
 
   return (
     <div className={Style.Chat}>
@@ -103,7 +125,7 @@ const Chat  = ({
       <div className={Style.Chat_box_box}>
         <div className={Style.Chat_box}>
           <div className={Style.Chat_box_left}>
-            {localFriendMsg.map((el, i) => (
+            {localFriendMsg?.map((el, i) => (
               <div key={i}>
                 {el.sender === chatData.address ? (
                   <div className={Style.Chat_box_left_title}>
@@ -131,20 +153,35 @@ const Chat  = ({
                   </div>
                 )}
                 <p>{el.msg}</p>
+                <div ref={fname}></div>
               </div>
+          
             ))}
           </div>
         </div>
-
         {currentUserName && currentUserAddress && (
           <div className={Style.Chat_box_send}>
             <div className={Style.Chat_box_send_img}>
-              <Image src={images.smile} alt="smile" width={50} height={50} />
+              {/* <Image src={images.smile} alt="smile" width={50} height={50} /> */}
+              <div className="emoji">
+                <Image width={50} height={50}
+                  src={images.smile}
+                  alt="smile"
+                  onClick={() => setOpen((prev) => !prev)}
+                />
+                {open && (
+                <div className="picker">
+                  <EmojiPicker open={open} onEmojiClick={handleEmoji} />
+                </div>
+                )}
+              </div>
               <input
                 type="text"
                 placeholder="type your message"
                 onChange={(e) => setMessage(e.target.value)}
-                ref={fname}
+                //ref={fname}
+                value={message}
+
               />
               <Image src={images.file} alt="file" width={50} height={50} />
               {loading ? (
@@ -162,8 +199,6 @@ const Chat  = ({
           </div>
         )}
       </div>
-
-      {/* {showLoading} */}
     </div>
   );
 };

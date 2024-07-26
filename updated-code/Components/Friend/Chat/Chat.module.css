@@ -34,13 +34,20 @@
 
 }
 
+.Chat_box_send {
+    position: relative;
+    width: 100%;
+  }
+
 .Chat_box_send_img{
     display: flex;
     align-items: center;
     gap: 1rem;
+    width: 100%;
 }
 
 .Chat_box_send_img input{
+    flex-grow: 1;
     width: 100%;
     background-color: #f182035b;
     outline: none;
@@ -50,6 +57,17 @@
     border-radius: .5rem;
 }
 
+
+.emoji {
+    position: relative;
+}
+.picker {
+    position: fixed; /* Thay đổi từ absolute sang fixed */
+  bottom: auto; /* Bỏ thuộc tính bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
 .Chat_user_info{
     display: flex;
     align-items: center;
@@ -77,4 +95,13 @@
     .show{
         display: none;
     }
+    .picker{
+        left: 10px;
+        transform: none;
+      }
 }
+
+
+
+
+  
