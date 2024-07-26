@@ -25,7 +25,6 @@ useEffect(() => {
 }, []);
 
 const handleMnemonicSubmit =  () => {
-  //setMnemInput(mnemonic);
   handleSubmit(mnemonic);
 };
 

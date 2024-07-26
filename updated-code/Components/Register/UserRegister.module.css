@@ -75,3 +75,15 @@
   font-size: 12px;
   margin-top: 4px;
 }
+
+.Cpassword_input_wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.Cpassword_input_wrapper input {
+  flex-grow: 1;
+  padding-right: 40px; 
+}

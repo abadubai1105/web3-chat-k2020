@@ -6,13 +6,16 @@ import { ChatAppContect } from "../Context/ChatAppContext";
 
 const friendrequest = () => {
   const { waitFriendLists, acptFriends } = useContext(ChatAppContect);
+  useEffect(() => {
+  }, [waitFriendLists,acptFriends]);
+
   if(!waitFriendLists || waitFriendLists.length === 0){
     return <div>
     <div className={Style.friendrequest_info}>
       <h1>No Friends Request Yet </h1>
     </div>
   </div>
-    }
+  }
   return (
     <div>
       <div className={Style.friendrequest_info}>

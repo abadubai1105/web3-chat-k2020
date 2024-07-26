@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 //INTERNAL IMPORT
 import Style from "./Card.module.css";
 import images from "../../../assets";
+import Chat from "../Chat/Chat";
 
 const Card = ({ readMessage, el, i, readUser }) => {
   const handleOnClick = async () => {
@@ -17,7 +18,7 @@ const Card = ({ readMessage, el, i, readUser }) => {
     }
   };
   return (
-     <div onClick={handleOnClick}>
+    <div>
      {/* () => (readMessage(el.pubkey), readUser(el.pubkey))} */}
       <Link
         href={{

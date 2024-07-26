@@ -10,6 +10,7 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   const [name, setName] = useState("");
   const [userAddress, setUserAddress] = useState(address);
   const [password, setPassword] = useState("");
+  const [cpassword, setCPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [mnemVisible, setMnemVisible] = useState(false);
@@ -28,11 +29,26 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
       setPasswordError("");
     }
   };
+  const samePassword = (password, cpassword) => {
+    if (password !== cpassword) {
+      setPasswordError("Passwords do not match.");
+    } else {
+      setPasswordError("");
+    }
+  };
 
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
     validatePassword(newPassword);
+    samePassword(newPassword, cpassword);
+  };
+
+  const handleCPasswordChange = (e) => {
+    const newCPassword = e.target.value;
+    setCPassword(newCPassword);
+    validatePassword(newCPassword);
+    samePassword(newCPassword, password);
   };
 
   const handleMnemInputChange = (e) => {
@@ -52,15 +68,18 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
 
   const handleSubmit = async (mnemonic) => {
     // Check if any required fields are empty or have errors
-    if (!name || !userAddress || !password || passwordError || mnemInputError) {
+    if (!name || !userAddress || !password || passwordError || mnemInputError|| !cpassword) {
       alert("Please fill in all required fields correctly.");
       return;
-    }
-    setMnemVisible(false);
-    try {
-      await createAccount({ name, userAddress, password, mnemonic });
-    } catch (error) {
-      console.error("Error in handleSubmit:", error);
+    } 
+    else {
+        setPasswordError("");
+        setMnemVisible(false);
+        try {
+          await createAccount({ name, userAddress, password, mnemonic });
+        } catch (error) {
+          console.error("Error in handleSubmit:", error);
+        }
     }
   };
 
@@ -69,7 +88,7 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
   };
 
   // Disable the Submit button if any required fields are empty or have errors
-  const isSubmitDisabled = !name || !userAddress || !password || passwordError || mnemInputError;
+  const isSubmitDisabled = !name || !userAddress || !password || passwordError || mnemInputError || !cpassword;
 
   return (
     <div className={Style.Model}>
@@ -115,12 +134,23 @@ const Register = ({ openBox, title, address, head, smallInfo, image }) => {
                   </button>
                 </div>
               </div>
+              <div className={Style.input_group}>
+                <Image src={images.smile} alt="password" width={30} height={30} />
+                <div className={Style.password_input_wrapper}>
+                  <input
+                    required
+                    type={passwordVisible ? "text" : "password"}
+                    placeholder="Confirm password"
+                    onChange={handleCPasswordChange}
+                  />
+                </div>
+              </div>
               {passwordError && (<p className={Style.error}>{passwordError}</p>)}
               <div className={Style.button_group}>
-                <button onClick={() => setMnemVisible(true)} disabled={isSubmitDisabled}>
-                  <Image src={images.send} alt="send" width={30} height={30} />
-                  Submit
-                </button>
+              <button onClick={() => setMnemVisible(true)} disabled={isSubmitDisabled}>
+                    <Image src={images.send} alt="send" width={30} height={30} />
+                    Submit
+                  </button>
 
                 <button onClick={() => router.push("/login")}>
                   <Image src={images.close} alt="close" width={30} height={30} />

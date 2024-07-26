@@ -151,6 +151,12 @@ const Model = ({
                     Register
                   </Link>
                 </p>
+                <p>
+                  Forgot your password?{" "}
+                  <Link href='/Forgot' onClick={() => openBox(false)}>
+                    Forgot Password
+                  </Link>
+                </p>
               </div>
             </div>
           )}

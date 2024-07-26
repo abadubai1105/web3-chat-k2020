@@ -1,9 +1,15 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
+<<<<<<< HEAD
     "E:\\1\\test\\updated-code\\contracts\\ChatApp.sol": {
       "lastModificationDate": 1719767884115,
       "contentHash": "1199ab03b3692732b06a71b0d1491551",
+=======
+    "/mnt/c/Users/KhanhDang/Desktop/FE_test/test/updated-code/contracts/ChatApp.sol": {
+      "lastModificationDate": 1721126795233,
+      "contentHash": "f7968a59e12d9ef12e67f1b9893818fd",
+>>>>>>> origin
       "sourceName": "contracts/ChatApp.sol",
       "solcConfig": {
         "version": "0.8.17",

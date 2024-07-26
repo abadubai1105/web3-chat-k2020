@@ -9,6 +9,7 @@ import Style from "./NavBar.module.css";
 import { ChatAppContect } from "../../Context/ChatAppContext";
 import { Model, Error, Register } from "../index";
 import images from "../../assets";
+import { useRouter } from "next/router";
 
 const NavBar = ({onLogOut}) => {
   const menuItems = [
@@ -52,6 +53,7 @@ const NavBar = ({onLogOut}) => {
     setIsUserLoggedIn, 
   } = useContext(ChatAppContect);
 
+  const Router = useRouter();
   const openUser = () => {
     setOpenModel(true);
     setOpenRegister(true);
@@ -60,20 +62,25 @@ const NavBar = ({onLogOut}) => {
     await logOutUser();
     setIsUserLoggedIn(false);
   }
+  const handleMenuClick = (index, link) => {
+    setActive(index + 1);
+    Router.push(link);
+  }
   return (
     <div className={Style.NavBar}>
       <div className={Style.NavBar_box}>
         <div className={Style.NavBar_box_left}>
-          <Link href="/alluser">
+          <Link href={isUserLoggedIn === true ? "/" : "/login"}>
             <Image src={images.logo1} alt="logo" width={50} height={50} />
           </Link>
         </div>
         <div className={Style.NavBar_box_right}>
           {/* DESKTOP */}
+          {isUserLoggedIn && (
           <div className={Style.NavBar_box_right_menu}>
             {menuItems.map((el, i) => (
               <div
-                onClick={() => setActive(i + 1)}
+                onClick={() => handleMenuClick(i, el.link)}
                 key={i + 1}
                 className={`${Style.NavBar_box_right_menu_items} ${
                   active == i + 1 ? Style.active_btn : ""
@@ -88,9 +95,10 @@ const NavBar = ({onLogOut}) => {
               </div>
             ))}
           </div>
+          )}
 
           {/* MOBILE */}
-          {open && (
+          {open && isUserLoggedIn && (
             <div className={Style.mobile_menu}>
               {menuItems.map((el, i) => (
                 <div
@@ -119,28 +127,47 @@ const NavBar = ({onLogOut}) => {
           )}
 
           {/* CONNECT WALLET */}
-          <div className={Style.NavBar_box_right_connect}>
-            {account == "" ? (
+          {account == " " ? (
+            <div className={Style.NavBar_box_right_account}>
               <button onClick={() => connectWallet()}>
-                <span>Connect Wallet</span>
-              </button>
-            ) : (
-              <button onClick={() => openUser()}>
                 <Image
                   src={userName ? images.accountName : images.create2}
                   alt="Account image"
                   width={20}
                   height={20}
                 />
-                <small>{userName || "Create Account"}</small>
+                <small>{userName || "Connect Wallet"}</small>
               </button>
-            )}
-          </div>
-            
-            {/* LOGOUT */}
+            </div>
+          ) : (
+            <div className={Style.NavBar_box_right_connect}>
+            {isUserLoggedIn ? (
+              <button onClick={() => Router.push("/Forgot")}>
+              <Image
+                src={userName ? images.accountName : images.create2}
+                alt="Account image"
+                width={20}
+                height={20}
+              />
+              <small>{userName || "Create Account"}</small>
+            </button>
+              ) : (
+                <button onClick={() => openUser()}>
+                  <Image
+                    src={userName ? images.accountName : images.create2}
+                    alt="Account image"
+                    width={20}
+                    height={20}
+                  />
+                  <small>{userName || "Create Account/Login"}</small>
+                </button>
+              )}
+            </div>
+          )}
           <div className={Style.NavBar_box_right_logout}>
-            <button type="button" className="btn btn-danger" onClick={handleLogOut}>Log Out</button>
+                <button type="button" className="btn btn-danger" onClick={handleLogOut}>Log Out</button>
           </div>
+
           <div
             className={Style.NavBar_box_right_open}
             onClick={() => setOpen(true)}
