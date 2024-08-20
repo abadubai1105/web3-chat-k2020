@@ -12,6 +12,10 @@ const AllUser = () => {
   useEffect(() => { 
     setFilteredUsers(userLists); 
   }, [userLists]); 
+
+  useEffect(() => { 
+    
+  }, [userLists]); 
  
   // Hàm tìm kiếm người dùng 
   const handleSearch = (term) => { 

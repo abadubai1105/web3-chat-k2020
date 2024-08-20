@@ -1,4 +1,5 @@
 //POLYGON DEPLOY ADDRESS= 0xA68BDd8c7b77f53B0653AAc61C719f6397C8FA61
+//npx hardhat run scripts/deploy.js --network localhost
 
 import chatApp from "../artifacts/contracts/ChatApp.sol/ChatApp.json";
 

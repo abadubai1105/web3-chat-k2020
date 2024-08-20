@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef,useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 // INTERNAL IMPORT
 import Style from "./Chat.module.css";
 import images from "../../../assets";
@@ -59,11 +59,11 @@ const Chat = ({
         await readMessage(chatData.address);
         await setLocalFriendMsg(friendMsg);
       }
-    }, 6500); // 5 seconds
+    }, 5000); // 5 seconds
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
-  }, [chatData.address, readMessage]);
+  }, [friendMsg, chatData.address]);
 
 
   const handleOnClick = async () => {
@@ -85,10 +85,6 @@ const Chat = ({
   // };
   const handleEmoji = (e) => {
     setMessage((prev) => prev + e.emoji);
-    // clearTimeout(timeoutIdRef.current); // Xóa timeout nếu chọn emoji
-    // timeoutIdRef.current = setTimeout(() => {
-    //   setOpen(false);
-    // }, 3000);
   };
 
   const handleClickOutside = useCallback((e) => {
@@ -121,8 +117,7 @@ const Chat = ({
           </div>
         </div>
       )}
-
-      <div className={Style.Chat_box_box}>
+<div className={Style.Chat_box_box}>
         <div className={Style.Chat_box}>
           <div className={Style.Chat_box_left}>
             {localFriendMsg?.map((el, i) => (
@@ -162,8 +157,7 @@ const Chat = ({
         {currentUserName && currentUserAddress && (
           <div className={Style.Chat_box_send}>
             <div className={Style.Chat_box_send_img}>
-              {/* <Image src={images.smile} alt="smile" width={50} height={50} /> */}
-              <div className="emoji">
+              <div className="emoji" style={{position:'relative'}}>
                 <Image width={50} height={50}
                   src={images.smile}
                   alt="smile"
@@ -171,7 +165,7 @@ const Chat = ({
                 />
                 {open && (
                 <div className="picker">
-                  <EmojiPicker open={open} onEmojiClick={handleEmoji} />
+                  <EmojiPicker open={open} onEmojiClick={handleEmoji} pickerStyle={EmojiStyle.Messenger} style={{ position: 'absolute',  bottom: '70px',left: '0'}}/>
                 </div>
                 )}
               </div>
