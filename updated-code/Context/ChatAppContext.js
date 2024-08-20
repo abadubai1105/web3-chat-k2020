@@ -168,13 +168,9 @@ export const ChatAppProvider = ({ children }) => {
             sessionStorage.setItem(account,scrambled);
           }
           setLoading(false);
-<<<<<<< HEAD
+
           router.push("/alluser");
           window.location.reload();
-=======
-          router.push("/");
-          //window.location.reload();
->>>>>>> origin
         } else { 
           // ở đây nếu ở local storage chưa có thì phải dẫn tới trang nhập mnemonic, ở trang đó set luôn isUserLoggedIn = true
           setIsUserLoggedIn(false);
@@ -257,6 +253,7 @@ export const ChatAppProvider = ({ children }) => {
       await addMyFriend.wait();
       setLoading(false);
       router.push("/");
+      window.location.reload();
     } catch (error) {
       setError("Something went wrong while adding friends, try again");
     }

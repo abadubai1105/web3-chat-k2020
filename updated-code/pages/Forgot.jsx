@@ -8,7 +8,7 @@
   import { ChatAppContect } from "../Context/ChatAppContext";
   import Style from "../Components/Forgot/Forgot.module.css";
   import images from "../assets";
-  function Forgot() {
+  const Forgot = ({ openBox, title, address, head, smallInfo, image }) =>{
     const [seedPhrase, setSeedPhrase] = useState("");
     const [exists, setExists] = useState(false);
     const [userAddress, setUserAddress] = useState("");
@@ -306,6 +306,8 @@
                             padding: "10px 20px",
                             borderRadius: "8px",
                             transition: "all 0.3s ease",
+                            width: "245px",
+                            height: "50px",
                           }}
                           disabled={isSubmitDisabled}
                           onMouseEnter={(e) =>
@@ -317,25 +319,28 @@
                         >
                           Confirm changes
                         </button>
-                        <br></br>
-                        <a className="btn btn-lg px-5" href={isUserLoggedIn ? "/" : "/login"}>
-                        <button
+                        <button 
+                          className="btn btn-lg px-5" 
+                          onClick={()=>isUserLoggedIn?router.push("/"):router.push("/login")}
+                          type="submit"
                           style={{
                             backgroundColor: "#000000",
                             border: "none",
                             color: "#fff",
-                            padding: "10px 94px",
+                            padding: "10px 20px",
                             borderRadius: "8px",
                             transition: "all 0.3s ease",
+                            marginTop: "20px",
+                            width: "245px",
+                            height: "50px",
                           }} onMouseEnter={(e) =>
                             (e.target.style.backgroundColor = "#FB723F")
                           }
                           onMouseLeave={(e) =>
                             (e.target.style.backgroundColor = "#000000")
                           }>
-                          Cancel 
+                            Cancel changes
                         </button>
-                        </a>
                       </div>
                     </div>
                 </div>

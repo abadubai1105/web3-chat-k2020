@@ -248,6 +248,7 @@ contract ChatApp{
     event messageSentEvent(address indexed sender, address indexed receiver, string message, uint256 timestamp, string iv,string hmac);
 
     event ChangePasswordUser(bool success);
+    //event FileUploaded(address indexed user, string name);
 
 
    
@@ -280,12 +281,35 @@ contract ChatApp{
         string name;
         address accountAddress;
     }
+    struct File {
+        string name;
+        bytes data;
+    }
 
     
     AllUserStruck[] getAllUsers;
 
     mapping(address => user) public userList;
     mapping(bytes32 => message[]) allMessages;
+
+    // mapping(address => File[]) fileStorage;
+
+
+    // function uploadFile(string memory _name, bytes memory _data) public {
+    //     fileStorage[msg.sender].push(File(_name, _data));
+    //     emit FileUploaded(msg.sender, _name);
+    // }
+
+    // function getFile(address _address, uint index) public view returns (string memory name, bytes memory data) {
+    //     require(index < fileStorage[_address].length, "File does not exist");
+    //     File storage file = fileStorage[_address][index];
+    //     return (file.name, file.data);
+    // }
+
+    // function getFileCount(address _address) public view returns (uint) {
+    //     return fileStorage[_address].length;
+    // }
+
 
     address [] public addresses;
 
